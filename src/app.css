@@ -1,0 +1,49 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+.stardos-stencil-regular {
+	font-family: 'Stardos Stencil', system-ui;
+	font-weight: 400;
+	font-style: normal;
+}
+
+.stardos-stencil-bold {
+	font-family: 'Stardos Stencil', system-ui;
+	font-weight: 700;
+	font-style: normal;
+}
+
+.snowburst-one-regular {
+	font-family: 'Snowburst One', system-ui;
+	font-weight: 400;
+	font-style: normal;
+}
+
+.noto-sans-mono-400 > {
+	font-family: 'Noto Sans Mono', monospace;
+	font-optical-sizing: auto;
+	font-weight: 400;
+	font-style: normal;
+	font-variation-settings: 'wdth' 100;
+}
+
+.fjalla-one-regular {
+	font-family: 'Fjalla One', sans-serif;
+	font-weight: 400;
+	font-style: normal;
+}
+
+.roboto-400 > {
+	font-family: 'Roboto', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 400;
+	font-style: normal;
+	font-variation-settings: 'wdth' 100;
+}
+
+.rubik-vinyl-regular {
+	font-family: 'Rubik Vinyl', system-ui;
+	font-weight: 400;
+	font-style: normal;
+}
