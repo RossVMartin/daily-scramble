@@ -20,7 +20,7 @@
 	font-style: normal;
 }
 
-.noto-sans-mono-400 > {
+.noto-sans-mono-400 {
 	font-family: 'Noto Sans Mono', monospace;
 	font-optical-sizing: auto;
 	font-weight: 400;
@@ -34,7 +34,7 @@
 	font-style: normal;
 }
 
-.roboto-400 > {
+.roboto-400 {
 	font-family: 'Roboto', sans-serif;
 	font-optical-sizing: auto;
 	font-weight: 400;
