@@ -29,6 +29,8 @@
 	let wordChecked;
 	let validWords = $state([]);
 	let sortedValidWords = $derived([...validWords].sort((a, b) => b.length - a.length));
+	let wordTrie = $state(null);
+	let showDictionaryWarning = $state(false);
 
 	function addLetter(index) {
 		word.push({
@@ -45,7 +47,11 @@
 	}
 
 	function checkAnswer() {
-		isTheWordValid = isValidWord(wordAsString);
+		if (!wordTrie) {
+			console.log('Wordtrie is not initialised yet');
+			return;
+		}
+		isTheWordValid = isValidWord(wordAsString, wordTrie);
 
 		showIfValidWord = true;
 		wordChecked = wordAsString[0] + wordAsString.slice(1).toLowerCase();
@@ -61,9 +67,12 @@
 		}, 3000);
 	}
 
-	onMount(() => {
+	onMount(async () => {
 		loading = false;
 		validWords = loadStorage();
+
+		const res = await fetch('/wordTrieSowpods.json');
+		wordTrie = await res.json();
 	});
 
 	function loadStorage() {
@@ -102,9 +111,29 @@
 		localStorage.setItem('dailyScrambleWords', JSON.stringify(parsedStorage));
 		validWords = newWords;
 	}
+
+	function checkAnswerMouseEnter() {
+		showDictionaryWarning = true;
+	}
+
+	function checkAnswerMouseLeave() {
+		showDictionaryWarning = false;
+	}
 </script>
 
 <div class="relative flex min-h-screen flex-col">
+	{#if showDictionaryWarning && wordTrie === null}
+		<div
+			class="absolute left-5 top-5 flex flex-col items-center justify-center gap-1 rounded-md bg-amber-500/30 p-2 text-center text-base text-white"
+			out:blur={{ duration: 200 }}
+			in:fade={{ duration: 200 }}
+		>
+			<span>Dictionary is loading...</span><span
+				>'Check Answer' won't work until it has loaded.</span
+			>
+		</div>
+	{/if}
+
 	{#if showIfValidWord}
 		<div
 			class="absolute right-5 top-8 z-50 text-white/90 shadow-md"
@@ -124,7 +153,7 @@
 	{/if}
 
 	<div
-		in:fade={{ duraiton: 100 }}
+		in:fade={{ duration: 100 }}
 		class="roboto-400 flex min-h-screen w-full flex-col items-center gap-y-10 bg-neutral-900 p-4 text-white"
 	>
 		<!-- Title -->
@@ -170,14 +199,13 @@
 		<!-- Buttons -->
 		<div class="flex w-full justify-center gap-4 text-xl">
 			<button
-				disabled={wordAsString.length === 0}
+				disabled={wordAsString.length === 0 || wordTrie === null || showIfValidWord}
 				class:hover:text-white={wordAsString.length > 0}
 				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white/80"
+				onmouseenter={checkAnswerMouseEnter}
+				onmouseleave={checkAnswerMouseLeave}
 				onclick={checkAnswer}>Check Answer</button
 			>
-			<!-- <button class="px-4 py-2 rounded-lg bg-neutral-800/60 text-white/80 hover:text-white"
-			>Show Answers</button
-		> -->
 			<button
 				onclick={() => {
 					word = [];

@@ -1,8 +1,5 @@
 import fs from 'fs/promises'; // Modern promise-based fs
 import path from 'path';
-import wordTrie from './wordTrieSowpods.json';
-
-const words = ['Apple', 'Pears', 'Oranges', 'Abacus', 'A', 'And', 'Andover'];
 
 // Function to build a Trie from the word list
 function buildTrie(words) {
@@ -20,7 +17,7 @@ function buildTrie(words) {
 	return trie;
 }
 
-export function isValidWord(word) {
+export function isValidWord(word, wordTrie) {
 	let node = wordTrie;
 	for (const char of word.toUpperCase()) {
 		if (!node[char]) return false; // Letter path breaks
