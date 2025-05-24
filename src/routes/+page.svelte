@@ -2,7 +2,7 @@
 	import seedrandom from 'seedrandom';
 	import { getNowUTC } from '$lib/dateUtils.js';
 	import { getLetters, letterPoints } from '$lib/letters.js';
-	import { isValidWord } from '$lib/dictionary.js';
+	import { isValidWord, findLongestWord } from '$lib/dictionary.js';
 	import { slide, fly, fade, blur } from 'svelte/transition';
 	import { onMount } from 'svelte';
 
@@ -146,6 +146,39 @@
 	function checkAnswerMouseLeave() {
 		showDictionaryWarning = false;
 	}
+
+	function handleFindLongestWord() {
+		const longestWord = findLongestWord(
+			[...letters].map((l) => l.letter),
+			wordTrie
+		);
+		console.log('Longest valid word:', longestWord);
+		word = [];
+		letters.map((l) => {
+			l.used = false;
+			return l;
+		});
+		writeWord(longestWord);
+	}
+
+	async function writeWord(wordToWrite) {
+		for (const char of wordToWrite) {
+			for (let i = 0; i < letters.length; i++) {
+				if (letters[i].letter === char && !letters[i].used) {
+					letters[i].used = true;
+					word.push({ letter: char, index: i });
+					await sleep(Math.round(Math.random() * 100) + 100);
+					break;
+				}
+			}
+		}
+	}
+
+	async function sleep(ms) {
+		return new Promise((resolve) => {
+			setTimeout(resolve, ms);
+		});
+	}
 </script>
 
 <div class="relative flex min-h-screen flex-col">
@@ -236,6 +269,13 @@
 				onmouseleave={checkAnswerMouseLeave}
 				onclick={checkAnswer}>Check Answer</button
 			>
+
+			<button
+				onclick={handleFindLongestWord}
+				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white/80 shadow-md hover:text-white"
+				>Show Longest Word</button
+			>
+
 			<button
 				onclick={() => {
 					word = [];

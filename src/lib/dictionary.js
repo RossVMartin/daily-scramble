@@ -26,6 +26,35 @@ export function isValidWord(word, wordTrie) {
 	return !!node.isWord; // Check if it’s a complete word
 }
 
+export function findLongestWord(letters, trieNode, currentWord = '', longest = '', depth = 0) {
+	if (trieNode.isWord && currentWord.length > longest.length) {
+		longest = currentWord;
+	}
+
+	for (const char of Object.keys(trieNode)) {
+		if (char === 'isWord') continue;
+
+		const index = letters.indexOf(char);
+		if (index !== -1) {
+			const newLetters = [...letters];
+			newLetters.splice(index, 1);
+
+			const candidate = findLongestWord(
+				newLetters,
+				trieNode[char],
+				currentWord + char,
+				longest,
+				depth + 1
+			);
+			if (candidate.length > longest.length) {
+				longest = candidate;
+			}
+		}
+	}
+
+	return longest;
+}
+
 // export const wordTrie = buildTrie(words);
 
 export async function processFile(inputFilePath, outputFilePath) {
