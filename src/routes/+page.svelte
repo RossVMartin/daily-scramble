@@ -26,11 +26,12 @@
 
 	let showIfValidWord = $state(false);
 	let isTheWordValid = $state(null);
-	let wordChecked;
+	let wordChecked = $state(null);
 	let validWords = $state([]);
 	let sortedValidWords = $derived([...validWords].sort((a, b) => b.length - a.length));
 	let wordTrie = $state(null);
 	let showDictionaryWarning = $state(false);
+	let checkAnswerButton = $state(null);
 
 	function addLetter(index) {
 		word.push({
@@ -71,9 +72,32 @@
 		loading = false;
 		validWords = loadStorage();
 
+		window.addEventListener('keydown', handleKeyDown);
+
 		const res = await fetch('/wordTrieSowpods.json');
 		wordTrie = await res.json();
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
 	});
+
+	function handleKeyDown(event) {
+		const key = event.key.toUpperCase();
+		console.log(key);
+		if (key.length === 1 && key >= 'A' && key <= 'Z') {
+			console.log('here');
+			for (let i = 0; i < letters.length; i++)
+				if (!letters[i].used && letters[i].letter === key) {
+					addLetter(i);
+					return;
+				}
+		} else if (key === 'BACKSPACE' && word.length > 0) {
+			removeLetter(word.length - 1);
+		} else if (key === 'ENTER' && checkAnswerButton) {
+			checkAnswerButton.click();
+		}
+	}
 
 	function loadStorage() {
 		const storageStr = localStorage.getItem('dailyScrambleWords');
@@ -199,6 +223,7 @@
 		<!-- Buttons -->
 		<div class="flex w-full justify-center gap-4 text-xl">
 			<button
+				bind:this={checkAnswerButton}
 				disabled={wordAsString.length === 0 || wordTrie === null || showIfValidWord}
 				class:hover:text-white={wordAsString.length > 0}
 				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white/80"
