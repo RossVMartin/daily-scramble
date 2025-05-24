@@ -1,7 +1,7 @@
 <script>
 	import seedrandom from 'seedrandom';
 	import { getNowUTC } from '$lib/dateUtils.js';
-	import { getLetters } from '$lib/letters.js';
+	import { getLetters, letterPoints } from '$lib/letters.js';
 	import { isValidWord } from '$lib/dictionary.js';
 	import { slide, fly, fade, blur } from 'svelte/transition';
 	import { onMount } from 'svelte';
@@ -32,6 +32,9 @@
 	let wordTrie = $state(null);
 	let showDictionaryWarning = $state(false);
 	let checkAnswerButton = $state(null);
+	let checkAnswerButtonDisabled = $derived(
+		wordAsString.length === 0 || wordTrie === null || showIfValidWord
+	);
 
 	function addLetter(index) {
 		word.push({
@@ -224,9 +227,11 @@
 		<div class="flex w-full justify-center gap-4 text-xl">
 			<button
 				bind:this={checkAnswerButton}
-				disabled={wordAsString.length === 0 || wordTrie === null || showIfValidWord}
-				class:hover:text-white={wordAsString.length > 0}
-				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white/80"
+				disabled={checkAnswerButtonDisabled}
+				class:hover:text-white={!checkAnswerButtonDisabled}
+				class:text-opacity-50={checkAnswerButtonDisabled}
+				class:text-opacity-80={!checkAnswerButtonDisabled}
+				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white shadow-md"
 				onmouseenter={checkAnswerMouseEnter}
 				onmouseleave={checkAnswerMouseLeave}
 				onclick={checkAnswer}>Check Answer</button
@@ -239,7 +244,8 @@
 						return l;
 					});
 				}}
-				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white/80 hover:text-white">Clear</button
+				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white/80 shadow-md hover:text-white"
+				>Clear</button
 			>
 		</div>
 
@@ -247,12 +253,24 @@
 		{#if validWords.length && !loading}
 			<div
 				in:fade={{ duration: 350 }}
-				class="flex flex-col items-center justify-center gap-2 text-lg"
+				class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/10 bg-neutral-800/30 p-8 text-lg shadow-lg"
 			>
-				<span class="fjalla-one-regular text-2xl">My Words:</span>
-				{#each sortedValidWords as validWord}
-					<span class="text-base">{validWord} - {validWord.length}</span>
-				{/each}
+				<span class="fjalla-one-regular mb-2 mt-[-10px] text-2xl text-white/90">My Words</span>
+				<div class="grid grid-cols-3 text-center text-white/80">
+					<span class="p-3 font-bold text-white">Word</span>
+					<span class="p-3 font-bold text-white">Length</span>
+					<span class="p-3 font-bold text-white">Scrabble Points</span>
+					{#each sortedValidWords as validWord}
+						<span>{validWord}</span>
+						<span>{validWord.length}</span>
+						<span
+							>{validWord.split('').reduce((acc, letter) => {
+								const points = letterPoints[letter.toUpperCase()];
+								return acc + points;
+							}, 0)}</span
+						>
+					{/each}
+				</div>
 			</div>
 		{/if}
 
