@@ -70,8 +70,9 @@
 		showIfValidWord = true;
 		wordChecked = wordAsString[0] + wordAsString.slice(1).toLowerCase();
 
-		if (isTheWordValid && !validWords.includes(wordChecked)) {
-			validWords.push(wordChecked);
+		if (isTheWordValid) {
+			selectDefinitionWord(wordChecked, true);
+			!validWords.includes(wordChecked) && validWords.push(wordChecked);
 		}
 
 		updateStorage();
@@ -222,8 +223,8 @@
 		letters.forEach((l) => (l.used = false));
 	}
 
-	async function handleSelectWord(word) {
-		if (word === definitionWord) {
+	async function selectDefinitionWord(word, forceEnable = false) {
+		if (!forceEnable && word === definitionWord) {
 			definitionWord = null;
 			return;
 		}
@@ -434,7 +435,7 @@
 						<div class="flex w-full items-center justify-center">
 							<button
 								onclick={() => {
-									handleSelectWord(validWord);
+									selectDefinitionWord(validWord);
 								}}
 								class="w-fit rounded-md p-1 {definitionWord === validWord
 									? 'bg-pink-500/40'
