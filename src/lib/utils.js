@@ -7,3 +7,9 @@ export function shuffleArraySeeded(array, rng = Math.random) {
 
 	return array;
 }
+
+export async function sleep(ms) {
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms);
+	});
+}

@@ -3,6 +3,7 @@
 	import { getNowUTC } from '$lib/dateUtils.js';
 	import { getLetters, letterPoints } from '$lib/letters.js';
 	import { isValidWord, findLongestWord } from '$lib/dictionary.js';
+	import { sleep } from '$lib/utils.js';
 	import { slide, fly, fade, blur } from 'svelte/transition';
 	import { onMount } from 'svelte';
 
@@ -32,12 +33,15 @@
 	let wordTrie = $state(null);
 	let showDictionaryWarning = $state(false);
 	let checkAnswerButton = $state(null);
+	let disableAllInputs = $state(false);
 	let checkAnswerButtonDisabled = $derived(
-		wordAsString.length === 0 || wordTrie === null || showIfValidWord
+		disableAllInputs || wordAsString.length === 0 || wordTrie === null || showIfValidWord
 	);
-
 	let letterInputIsInvalid = $state(false);
 	let invalidLetter = $state(null);
+
+	let invalidLetterStack = [];
+	let processingInvalidLettersStack = false;
 
 	function addLetter(index) {
 		word.push({
@@ -88,9 +92,9 @@
 		};
 	});
 
-	function handleKeyDown(event) {
+	async function handleKeyDown(event) {
+		if (disableAllInputs) return;
 		const key = event.key.toUpperCase();
-		console.log(key);
 		if (key.length === 1 && key >= 'A' && key <= 'Z') {
 			for (let i = 0; i < letters.length; i++)
 				if (!letters[i].used && letters[i].letter === key) {
@@ -98,16 +102,39 @@
 					return;
 				}
 			// Letter wasn't inputted
-			invalidLetter = key;
-			letterInputIsInvalid = true;
-			setTimeout(() => {
-				letterInputIsInvalid = false;
-			}, 800);
+			// invalidLetter = key;
+			invalidLetterStack.push(key);
+			!processingInvalidLettersStack && showInvalidLetters();
 		} else if (key === 'BACKSPACE' && word.length > 0) {
 			removeLetter(word.length - 1);
 		} else if (key === 'ENTER' && checkAnswerButton) {
 			checkAnswerButton.click();
+		} else if (key === 'ESCAPE') {
+			clearCurrentWord();
 		}
+	}
+
+	function showInvalidLetters() {
+		if (processingInvalidLettersStack) return;
+		processingInvalidLettersStack = true;
+
+		function processNext() {
+			if (invalidLetterStack.length === 0) {
+				processingInvalidLettersStack = false;
+				letterInputIsInvalid = false;
+				return;
+			}
+
+			invalidLetter = invalidLetterStack.shift();
+			letterInputIsInvalid = true;
+
+			setTimeout(() => {
+				letterInputIsInvalid = false;
+				setTimeout(processNext, 75);
+			}, 500);
+		}
+
+		processNext();
 	}
 
 	function loadStorage() {
@@ -160,15 +187,13 @@
 			[...letters].map((l) => l.letter),
 			wordTrie
 		);
-		word = [];
-		letters.map((l) => {
-			l.used = false;
-			return l;
-		});
+		clearCurrentWord();
 		writeWord(longestWord);
 	}
 
 	async function writeWord(wordToWrite) {
+		disableAllInputs = true;
+
 		for (const char of wordToWrite) {
 			for (let i = 0; i < letters.length; i++) {
 				if (letters[i].letter === char && !letters[i].used) {
@@ -179,12 +204,20 @@
 				}
 			}
 		}
+
+		disableAllInputs = false;
 	}
 
-	async function sleep(ms) {
-		return new Promise((resolve) => {
-			setTimeout(resolve, ms);
-		});
+	function tallyScrabblePoints(charArray) {
+		return charArray.reduce((acc, letter) => {
+			const points = letterPoints[letter.toUpperCase()];
+			return acc + points;
+		}, 0);
+	}
+
+	function clearCurrentWord() {
+		word = [];
+		letters.forEach((l) => (l.used = false));
 	}
 </script>
 
@@ -233,10 +266,7 @@
 		</p>
 
 		<!-- Your word -->
-		<div
-			class:shake-twist={letterInputIsInvalid}
-			class="flex min-h-20 flex-wrap justify-center gap-2 rounded-md p-4"
-		>
+		<div class="flex min-h-20 flex-wrap justify-center gap-2 rounded-md p-4">
 			{#each word as { letter }, index}
 				<button
 					onclick={() => {
@@ -252,7 +282,7 @@
 			{#if letterInputIsInvalid}
 				<div
 					in:fly={{ duration: 0 }}
-					out:fly={{ duration: 200 }}
+					out:fly={{ duration: 0 }}
 					class:shake-twist={letterInputIsInvalid}
 					class="absolute left-[-100px] top-[-100px] z-50"
 				>
@@ -271,6 +301,7 @@
 						>
 					{:else}
 						<button
+							disabled={disableAllInputs}
 							onclick={() => {
 								addLetter(index);
 							}}
@@ -297,7 +328,7 @@
 			>
 
 			<button
-				disabled={wordTrie === null}
+				disabled={wordTrie === null || disableAllInputs}
 				onclick={handleFindLongestWord}
 				class="rounded-lg bg-neutral-800/60 px-4 py-2 {wordTrie
 					? 'text-white/80 hover:text-white'
@@ -305,13 +336,8 @@
 			>
 
 			<button
-				onclick={() => {
-					word = [];
-					letters.map((l) => {
-						l.used = false;
-						return l;
-					});
-				}}
+				disabled={disableAllInputs}
+				onclick={clearCurrentWord}
 				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white/80 shadow-md hover:text-white"
 				>Clear</button
 			>
@@ -331,12 +357,7 @@
 					{#each sortedValidWords as validWord}
 						<span>{validWord}</span>
 						<span>{validWord.length}</span>
-						<span
-							>{validWord.split('').reduce((acc, letter) => {
-								const points = letterPoints[letter.toUpperCase()];
-								return acc + points;
-							}, 0)}</span
-						>
+						<span>{tallyScrabblePoints(validWord.split(''))}</span>
 					{/each}
 				</div>
 			</div>
