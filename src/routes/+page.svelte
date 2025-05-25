@@ -102,7 +102,6 @@
 					return;
 				}
 			// Letter wasn't inputted
-			// invalidLetter = key;
 			invalidLetterStack.push(key);
 			!processingInvalidLettersStack && showInvalidLetters();
 		} else if (key === 'BACKSPACE' && word.length > 0) {
@@ -224,7 +223,7 @@
 <div class="relative flex min-h-screen flex-col">
 	{#if showDictionaryWarning && wordTrie === null}
 		<div
-			class="absolute left-5 top-5 flex flex-col items-center justify-center gap-1 rounded-md bg-amber-500/30 p-2 text-center text-base text-white"
+			class="fixed left-5 top-5 flex flex-col items-center justify-center gap-1 rounded-md bg-amber-500/30 p-2 text-center text-base text-white"
 			out:blur={{ duration: 200 }}
 			in:fade={{ duration: 200 }}
 		>
@@ -236,16 +235,16 @@
 
 	{#if showIfValidWord}
 		<div
-			class="absolute right-5 top-8 z-50 text-white/90 shadow-md"
+			class="fixed right-2 top-5 z-50 text-white/90 shadow-md md:right-5 md:top-8"
 			in:fade={{ duration: 500 }}
 			out:fade={{ duration: 500 }}
 		>
 			{#if isTheWordValid}
-				<span class="relative rounded-lg bg-green-800/90 p-4 text-2xl"
+				<span class="relative rounded-lg bg-green-800/90 p-3 text-lg md:p-4 md:text-2xl"
 					>'{wordChecked}' is a valid word!</span
 				>
 			{:else}
-				<span class="relative rounded-lg bg-red-800/90 p-4 text-2xl"
+				<span class="relative rounded-lg bg-red-800/90 p-3 text-lg md:p-4 md:text-2xl"
 					>'{wordChecked}' is not a valid word.</span
 				>
 			{/if}
@@ -254,14 +253,16 @@
 
 	<div
 		in:fade={{ duration: 100 }}
-		class="roboto-400 flex min-h-screen w-full flex-col items-center gap-y-10 bg-neutral-900 p-4 text-white"
+		class="roboto-400 flex min-h-screen w-full flex-col items-center gap-y-4 bg-neutral-900 p-4 text-white md:gap-y-10"
 	>
 		<!-- Title -->
-		<h1 class="stardos-stencil-bold rounded-lg border-0 border-white/50 p-4 text-6xl text-white/90">
+		<h1
+			class="stardos-stencil-bold rounded-lg border-0 border-white/50 p-4 text-4xl text-white/90 md:text-6xl"
+		>
 			Daily Scramble
 		</h1>
 
-		<p class="mt-[-40px] text-lg text-white/80">
+		<p class="mt-[-20px] text-white/80 md:mt-[-40px] md:text-lg">
 			Try to find the longest word! A new scramble daily.
 		</p>
 
@@ -272,7 +273,8 @@
 					onclick={() => {
 						removeLetter(index);
 					}}
-					class="stardos-stencil-regular text-5xl underline underline-offset-8">{letter}</button
+					class="stardos-stencil-regular text-3xl underline underline-offset-8 md:text-5xl"
+					>{letter}</button
 				>
 			{/each}
 		</div>
@@ -287,7 +289,7 @@
 					class="absolute left-[-100px] top-[-100px] z-50"
 				>
 					<span
-						class="stardos-stencil-regular block rounded-xl bg-red-500/40 p-4 text-5xl text-red-100 shadow-lg backdrop-blur-xl"
+						class="stardos-stencil-regular block rounded-xl bg-red-500/40 p-4 text-3xl text-red-100 shadow-lg backdrop-blur-xl md:text-5xl"
 						>{invalidLetter}</span
 					>
 				</div>
@@ -296,7 +298,7 @@
 				{#each letters as { letter, used }, index}
 					{#if used}
 						<span
-							class="stardos-stencil-regular block w-full p-4 text-center text-5xl text-white/30"
+							class="stardos-stencil-regular block w-full p-4 text-center text-3xl text-white/30 md:text-5xl"
 							>{letter}</span
 						>
 					{:else}
@@ -305,7 +307,7 @@
 							onclick={() => {
 								addLetter(index);
 							}}
-							class="stardos-stencil-regular rounded-lg p-4 text-5xl hover:bg-pink-600/30 hover:shadow-lg"
+							class="stardos-stencil-regular rounded-lg p-4 text-3xl hover:bg-pink-600/30 hover:shadow-lg md:text-5xl"
 							>{letter}</button
 						>
 					{/if}
@@ -314,7 +316,7 @@
 		</div>
 
 		<!-- Buttons -->
-		<div class="flex w-full justify-center gap-4 text-xl">
+		<div class="flex w-full justify-center gap-4 text-sm md:text-xl">
 			<button
 				bind:this={checkAnswerButton}
 				disabled={checkAnswerButtonDisabled}
@@ -347,9 +349,11 @@
 		{#if validWords.length && !loading}
 			<div
 				in:fade={{ duration: 350 }}
-				class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/10 bg-neutral-800/30 p-8 text-lg shadow-lg"
+				class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/10 bg-neutral-800/30 p-8 shadow-lg md:text-lg"
 			>
-				<span class="fjalla-one-regular mb-2 mt-[-10px] text-2xl text-white/90">My Words</span>
+				<span class="fjalla-one-regular mb-2 mt-[-10px] text-lg text-white/90 md:text-2xl"
+					>My Words</span
+				>
 				<div class="grid grid-cols-3 text-center text-white/80">
 					<span class="p-3 font-bold text-white">Word</span>
 					<span class="p-3 font-bold text-white">Length</span>
@@ -364,7 +368,7 @@
 		{/if}
 
 		<!-- Footer e.g flex-grow and made by Ross etc -->
-		<div class="flex flex-grow items-end justify-end text-sm text-white/80">
+		<div class="flex-grow items-end justify-end text-center text-xs text-white/80 md:text-sm">
 			New scrambles every day (UTC time). Words are validated with a&nbsp;<a
 				class="underline hover:text-white"
 				href="https://www.freescrabbledictionary.com/sowpods/"
