@@ -43,6 +43,9 @@
 	let invalidLetterStack = [];
 	let processingInvalidLettersStack = false;
 
+	let definitionWord = $state(null);
+	let definitions = {};
+
 	function addLetter(index) {
 		word.push({
 			letter: letters[index].letter,
@@ -218,7 +221,75 @@
 		word = [];
 		letters.forEach((l) => (l.used = false));
 	}
+
+	async function handleSelectWord(word) {
+		if (word === definitionWord) {
+			definitionWord = null;
+			return;
+		}
+
+		if (!definitions[word]) {
+			try {
+				const data = await fetchDefinition(word);
+				if (!data || typeof data !== 'object' || data?.title === 'No Definitions Found') {
+					throw new Error();
+				}
+
+				const definition = data[0]?.meanings[0]?.definitions[0]?.definition;
+
+				if (!definition) {
+					throw new Error();
+				}
+
+				definitions[word] = definition;
+			} catch (err) {
+				console.log('Error fetching definition', err);
+				definitions[word] = null;
+			}
+		}
+		definitionWord = word;
+	}
+
+	async function fetchDefinition(word) {
+		const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+		if (!res.ok) {
+			throw new Error('Word not found');
+		}
+		const data = await res.json();
+		return data;
+	}
 </script>
+
+{#if definitionWord !== null}
+	<div
+		class="md:hover:bg-pink-600/3 fixed bottom-2 right-2 z-50 flex h-fit w-fit min-w-[200px] max-w-[320px] flex-col gap-2 rounded-lg bg-pink-800/60 p-3 shadow-xl transition-all duration-150 md:max-w-[400px] md:p-4 lg:left-5 lg:top-5"
+	>
+		<div class="relative w-full">
+			<h2 class="text-lg font-bold text-white/90 md:text-2xl">{definitionWord}</h2>
+			<button
+				title="Close"
+				onclick={() => {
+					definitionWord = null;
+				}}
+				class="absolute right-0 top-0 text-lg font-bold text-white/60 hover:text-white">✕</button
+			>
+		</div>
+
+		<span class="text-sm text-white/80 md:text-base"
+			>{definitions[definitionWord] ?? 'No definition found'}</span
+		>
+		{#if definitions[definitionWord]}
+			<div class="flex w-full justify-end">
+				<a
+					href={`https://en.wiktionary.org/wiki/${definitionWord}`}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="w-fit text-sm font-medium text-white/70 hover:text-white">Read More</a
+				>
+			</div>
+		{/if}
+	</div>
+{/if}
 
 <div class="relative flex min-h-screen flex-col">
 	{#if showDictionaryWarning && wordTrie === null}
@@ -286,7 +357,7 @@
 					in:fly={{ duration: 0 }}
 					out:fly={{ duration: 0 }}
 					class:shake-twist={letterInputIsInvalid}
-					class="absolute left-[-100px] top-[-100px] z-50"
+					class="fixed left-14 top-14 z-50 md:absolute md:left-[-100px] md:top-[-100px]"
 				>
 					<span
 						class="stardos-stencil-regular block rounded-xl bg-red-500/40 p-4 text-3xl text-red-100 shadow-lg backdrop-blur-xl md:text-5xl"
@@ -349,17 +420,27 @@
 		{#if validWords.length && !loading}
 			<div
 				in:fade={{ duration: 350 }}
-				class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/10 bg-neutral-800/30 p-8 shadow-lg md:text-lg"
+				class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/10 bg-neutral-800/30 p-4 shadow-lg md:p-6 md:text-lg"
 			>
-				<span class="fjalla-one-regular mb-2 mt-[-10px] text-lg text-white/90 md:text-2xl"
+				<!-- <span class="fjalla-one-regular text-lg text-white md:mb-2 md:mt-[-10px] md:text-2xl"
 					>My Words</span
-				>
+				> -->
+
 				<div class="grid grid-cols-3 text-center text-white/80">
-					<span class="p-3 font-bold text-white">Word</span>
-					<span class="p-3 font-bold text-white">Length</span>
-					<span class="p-3 font-bold text-white">Scrabble Points</span>
+					<span class="p-3 font-bold text-white/90">Word</span>
+					<span class="p-3 font-bold text-white/90">Length</span>
+					<span class="p-3 font-bold text-white/90">Scrabble Points</span>
 					{#each sortedValidWords as validWord}
-						<span>{validWord}</span>
+						<div class="flex w-full items-center justify-center">
+							<button
+								onclick={() => {
+									handleSelectWord(validWord);
+								}}
+								class="w-fit rounded-md p-1 {definitionWord === validWord
+									? 'bg-pink-500/40'
+									: 'hover:bg-pink-500/30'} hover:text-white">{validWord}</button
+							>
+						</div>
 						<span>{validWord.length}</span>
 						<span>{tallyScrabblePoints(validWord.split(''))}</span>
 					{/each}
