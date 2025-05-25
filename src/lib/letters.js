@@ -58,10 +58,37 @@ export const letterPoints = {
 	Z: 10
 };
 
+const vowels = 'AEIOU';
+const maxDuplicates = 3;
+
 export function getLetters(count = 16, rng = Math.random) {
 	const lettersArray = makeWeightedLettersArray();
 	shuffleArraySeeded(lettersArray, rng);
-	return lettersArray.slice(0, count);
+	let res = [];
+	let characterMapping = new Map();
+	let vowelCount = 0;
+
+	const maxVowels = Math.ceil(count / 2);
+
+	for (const char of lettersArray) {
+		// Not too many duplicates
+		const currentCharCount = characterMapping.get(char);
+		const tooManyDuplicates = currentCharCount === maxDuplicates;
+		// Not too many vowels
+		const isAVowel = vowels.includes(char);
+		const tooManyVowels = isAVowel && vowelCount === maxVowels;
+		if (tooManyDuplicates || tooManyVowels) {
+			continue;
+		}
+
+		isAVowel && vowelCount++;
+		characterMapping.set(char, currentCharCount === undefined ? 1 : currentCharCount + 1);
+		res.push(char);
+
+		if (res.length === count) break;
+	}
+
+	return res;
 }
 
 function makeWeightedLettersArray() {
