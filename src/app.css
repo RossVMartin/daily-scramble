@@ -47,3 +47,22 @@
 	font-weight: 400;
 	font-style: normal;
 }
+
+@keyframes shake-twist {
+	0%,
+	100% {
+		transform: translateX(0) rotate(0deg);
+	}
+	20%,
+	60% {
+		transform: translateX(-10px) rotate(-10deg);
+	}
+	40%,
+	80% {
+		transform: translateX(10px) rotate(10deg);
+	}
+}
+
+.shake-twist {
+	animation: shake-twist 0.4s ease-in-out;
+}

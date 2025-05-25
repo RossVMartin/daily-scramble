@@ -36,6 +36,9 @@
 		wordAsString.length === 0 || wordTrie === null || showIfValidWord
 	);
 
+	let letterInputIsInvalid = $state(false);
+	let invalidLetter = $state(null);
+
 	function addLetter(index) {
 		word.push({
 			letter: letters[index].letter,
@@ -89,12 +92,17 @@
 		const key = event.key.toUpperCase();
 		console.log(key);
 		if (key.length === 1 && key >= 'A' && key <= 'Z') {
-			console.log('here');
 			for (let i = 0; i < letters.length; i++)
 				if (!letters[i].used && letters[i].letter === key) {
 					addLetter(i);
 					return;
 				}
+			// Letter wasn't inputted
+			invalidLetter = key;
+			letterInputIsInvalid = true;
+			setTimeout(() => {
+				letterInputIsInvalid = false;
+			}, 800);
 		} else if (key === 'BACKSPACE' && word.length > 0) {
 			removeLetter(word.length - 1);
 		} else if (key === 'ENTER' && checkAnswerButton) {
@@ -152,7 +160,6 @@
 			[...letters].map((l) => l.letter),
 			wordTrie
 		);
-		console.log('Longest valid word:', longestWord);
 		word = [];
 		letters.map((l) => {
 			l.used = false;
@@ -226,7 +233,10 @@
 		</p>
 
 		<!-- Your word -->
-		<div class="flex min-h-20 flex-wrap justify-center gap-2 rounded-md p-4">
+		<div
+			class:shake-twist={letterInputIsInvalid}
+			class="flex min-h-20 flex-wrap justify-center gap-2 rounded-md p-4"
+		>
 			{#each word as { letter }, index}
 				<button
 					onclick={() => {
@@ -238,22 +248,38 @@
 		</div>
 
 		<!-- Letters -->
-		<div class="grid grid-cols-9 justify-center">
-			{#each letters as { letter, used }, index}
-				{#if used}
-					<span class="stardos-stencil-regular block w-full p-4 text-center text-5xl text-white/30"
-						>{letter}</span
+		<div class="relative">
+			{#if letterInputIsInvalid}
+				<div
+					in:fly={{ duration: 0 }}
+					out:fly={{ duration: 200 }}
+					class:shake-twist={letterInputIsInvalid}
+					class="absolute left-[-100px] top-[-100px] z-50"
+				>
+					<span
+						class="stardos-stencil-regular block rounded-xl bg-red-500/40 p-4 text-5xl text-red-100 shadow-lg backdrop-blur-xl"
+						>{invalidLetter}</span
 					>
-				{:else}
-					<button
-						onclick={() => {
-							addLetter(index);
-						}}
-						class="stardos-stencil-regular rounded-lg p-4 text-5xl hover:bg-pink-600/30 hover:shadow-lg"
-						>{letter}</button
-					>
-				{/if}
-			{/each}
+				</div>
+			{/if}
+			<div class="grid grid-cols-9 justify-center">
+				{#each letters as { letter, used }, index}
+					{#if used}
+						<span
+							class="stardos-stencil-regular block w-full p-4 text-center text-5xl text-white/30"
+							>{letter}</span
+						>
+					{:else}
+						<button
+							onclick={() => {
+								addLetter(index);
+							}}
+							class="stardos-stencil-regular rounded-lg p-4 text-5xl hover:bg-pink-600/30 hover:shadow-lg"
+							>{letter}</button
+						>
+					{/if}
+				{/each}
+			</div>
 		</div>
 
 		<!-- Buttons -->
@@ -271,9 +297,11 @@
 			>
 
 			<button
+				disabled={wordTrie === null}
 				onclick={handleFindLongestWord}
-				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white/80 shadow-md hover:text-white"
-				>Show Longest Word</button
+				class="rounded-lg bg-neutral-800/60 px-4 py-2 {wordTrie
+					? 'text-white/80 hover:text-white'
+					: 'text-white/50'} shadow-md">Show Longest Word</button
 			>
 
 			<button
