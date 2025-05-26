@@ -111,7 +111,8 @@
 					return;
 				}
 			// Letter wasn't inputted
-			invalidLetterStack.push(key);
+			console.log('keydown', invalidLetterStack.length);
+			invalidLetterStack.length < 3 && invalidLetterStack.push(key);
 			!processingInvalidLettersStack && showInvalidLetters();
 		} else if (key === 'BACKSPACE' && word.length > 0) {
 			removeLetter(word.length - 1);
@@ -278,7 +279,7 @@
 
 {#if definitionWord !== null}
 	<div
-		class="bg-accent/60 md:hover:bg-accent/30 fixed right-2 bottom-2 z-50 flex h-fit w-fit max-w-[320px] min-w-[200px] flex-col gap-2 rounded-lg p-3 shadow-lg transition-all duration-150 md:max-w-[400px] md:p-4 lg:top-5 lg:left-5"
+		class="bg-accent/60 dark:bg-accent/40 dark:md:hover:bg-accent/50 md:hover:bg-accent/70 fixed right-2 bottom-2 z-50 flex h-fit w-fit max-w-[320px] min-w-[180px] flex-col gap-2 rounded-lg p-3 shadow-lg backdrop-blur-xs transition-all duration-150 md:max-w-[400px] md:min-w-[225px] md:p-4 lg:top-5 lg:left-5"
 	>
 		<div class="relative w-full">
 			<h2 class="text-text/90 text-lg font-bold md:text-2xl">{definitionWord}</h2>
@@ -292,36 +293,6 @@
 		</div>
 
 		<span class="text-text/90 text-sm md:text-base"
-			>{definitions[definitionWord] ?? 'No definition found'}</span
-		>
-		{#if definitions[definitionWord]}
-			<div class="flex w-full justify-end">
-				<a
-					href={`https://en.wiktionary.org/wiki/${definitionWord}`}
-					target="_blank"
-					rel="noopener noreferrer"
-					class="text-text/70 hover:text-text w-fit text-sm font-medium">Read More</a
-				>
-			</div>
-		{/if}
-	</div>
-{/if}
-{#if definitionWord !== null}
-	<div
-		class="bg-accent/60 md:hover:bg-accent/30 fixed right-2 bottom-2 z-50 flex h-fit w-fit max-w-[320px] min-w-[200px] flex-col gap-2 rounded-lg p-3 shadow-lg transition-all duration-150 md:max-w-[400px] md:p-4 lg:top-5 lg:left-5"
-	>
-		<div class="relative w-full">
-			<h2 class="text-text/90 text-lg font-bold md:text-2xl">{definitionWord}</h2>
-			<button
-				title="Close"
-				onclick={() => {
-					definitionWord = null;
-				}}
-				class="text-text/60 hover:text-text absolute top-0 right-0 text-lg font-bold">✕</button
-			>
-		</div>
-
-		<span class="text-text/80 text-sm md:text-base"
 			>{definitions[definitionWord] ?? 'No definition found'}</span
 		>
 		{#if definitions[definitionWord]}
@@ -372,27 +343,46 @@
 		in:fade={{ duration: 100 }}
 		class="roboto-400 bg-bg text-text flex min-h-screen w-full flex-col items-center gap-y-4 p-4 md:gap-y-10"
 	>
-		<!-- Theme switcher -->
+		<!-- Theme switcher mobile -->
+		<div class="mb-[-16px] flex w-full justify-end md:hidden">
+			<button
+				title="Change theme"
+				onclick={handleSwitchTheme}
+				class="text-text/80 bg-accent/10 hover:bg-accent/30 border-bg-secondary top-2 right-2 rounded-lg border p-1.5 transition-all duration-150 md:absolute md:p-2"
+			>
+				{#if typeof document !== 'undefined' && darkMode}
+					<LightMode size={18} />
+				{:else}
+					<DarkMode size={18} />
+				{/if}
+			</button>
+		</div>
+
+		<!-- Theme switcher md -->
 		<button
 			title="Change theme"
 			onclick={handleSwitchTheme}
-			class="text-text/80 bg-accent/10 hover:bg-accent/30 border-bg-secondary absolute top-2 right-2 rounded-lg border p-2 transition-all duration-150"
+			class="text-text/80 bg-accent/10 hover:bg-accent/30 border-bg-secondary absolute top-2 right-2 hidden rounded-lg border p-1.5 transition-all duration-150 md:block md:p-2"
 		>
 			{#if typeof document !== 'undefined' && darkMode}
-				<LightMode size={30} />
+				<LightMode size={28} />
 			{:else}
-				<DarkMode size={30} />
+				<DarkMode size={28} />
 			{/if}
 		</button>
 
 		<!-- Title -->
-		<h1 class="stardos-stencil-bold text-text/90 rounded-lg border-0 p-4 text-4xl md:text-6xl">
-			Daily Scramble
-		</h1>
+		<div class="flex flex-col items-center justify-center">
+			<h1
+				class="stardos-stencil-bold text-text/90 2xs:text-5xl xs:text-6xl rounded-lg p-4 text-4xl"
+			>
+				Daily Scramble
+			</h1>
 
-		<p class="text-text/80 mt-[-20px] md:mt-[-40px] md:text-lg">
-			Try to find the longest word! A new scramble daily.
-		</p>
+			<p class="text-text/80 xs:text-base mt-[-5px] text-sm md:text-lg">
+				Try to find the longest word! A new scramble daily.
+			</p>
+		</div>
 
 		<!-- Your word -->
 		<div class="flex min-h-20 flex-wrap justify-center gap-2 rounded-md p-4">
@@ -478,9 +468,9 @@
 				in:fade={{ duration: 350 }}
 				class="dark:border-text/10 border-text/30 bg-bg-secondary flex flex-col items-center justify-center gap-2 rounded-lg border p-4 shadow-lg md:p-6 md:text-lg"
 			>
-				<!-- <span class="fjalla-one-regular text-lg text-white md:mb-2 md:mt-[-10px] md:text-2xl"
-                    >My Words</span
-                > -->
+				<!-- <span class="fjalla-one-regular text-text text-lg md:mt-[-10px] md:mb-2 md:text-2xl"
+					>My Words</span
+				> -->
 
 				<div class="text-text/80 grid grid-cols-3 text-center">
 					<span class="text-text/90 p-3 font-bold">Word</span>
@@ -505,13 +495,15 @@
 		{/if}
 
 		<!-- Footer e.g flex-grow and made by Ross etc -->
-		<div class="text-text/80 flex-grow items-end justify-end text-center text-xs md:text-sm">
-			New scrambles every day (UTC time). Words are validated with a <a
-				class="hover:text-text underline"
-				href="https://www.freescrabbledictionary.com/sowpods/"
-			>
-				European SOWPODS dictionary</a
-			>.
+		<div class="text-text/80 flex flex-grow items-end justify-end text-center text-xs md:text-sm">
+			<div>
+				New scrambles every day (UTC time). Words are validated with a <a
+					class="hover:text-text underline"
+					href="https://www.freescrabbledictionary.com/sowpods/"
+				>
+					European SOWPODS dictionary</a
+				>.
+			</div>
 		</div>
 	</div>
 </div>

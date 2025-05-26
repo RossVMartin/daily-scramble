@@ -87,6 +87,15 @@ export function getLetters(count = 16, rng = Math.random) {
 			continue;
 		}
 
+		// Make sure if we're adding a Q to add a U too.
+		if (char === 'Q') {
+			if (res.length + 1 === count) {
+				continue;
+			} else {
+				lettersArray.splice(0, 0, 'U');
+			}
+		}
+
 		isAVowel && vowelCount++;
 		characterMapping.set(char, currentCharCount === undefined ? 1 : currentCharCount + 1);
 
@@ -97,15 +106,6 @@ export function getLetters(count = 16, rng = Math.random) {
 
 		if (duplicateSets > maxDuplicateSets) {
 			return getLetters(count, rng);
-		}
-
-		// Make sure if we're adding a Q to add a U too.
-		if (char === 'Q') {
-			if (res.length + 1 === count) {
-				continue;
-			} else {
-				lettersArray.splice(0, 0, 'U');
-			}
 		}
 
 		res.push(char);

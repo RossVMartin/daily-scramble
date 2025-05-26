@@ -2,13 +2,15 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+	--breakpoint-2xs: 25rem;
+	--breakpoint-xs: 30rem;
 	--color-bg: hsl(0, 0%, 95%); /* Slightly brighter for warmth */
 	--color-bg-secondary: hsl(0, 5%, 91%);
 	--color-text: hsl(0, 0%, 10%); /* Darker text for clarity */
-	--color-accent: hsl(330, 60%, 70%); /* Lower saturation and lightness */
+	--color-accent: hsl(175, 40%, 65%); /* Lower saturation and lightness */
 	--color-warning: hsl(40, 70%, 50%); /* Softer amber */
-	--color-error: hsl(0, 50%, 75%); /* Soft red */
-	--color-success: hsl(120, 50%, 85%); /* Soft green */
+	--color-error: hsl(0, 40%, 70%); /* Soft red */
+	--color-success: hsl(120, 40%, 70%); /* Soft green */
 }
 
 .dark {
@@ -22,13 +24,6 @@
 	--color-error: hsl(0, 60%, 40%); /* Like bg-red-800 */
 }
 
-/* Keep your fonts, animations, etc. */
-.stardos-stencil-regular {
-	font-family: 'Stardos Stencil', system-ui;
-	font-weight: 400;
-	font-style: normal;
-}
-/* ... rest of your styles ... */
 .stardos-stencil-regular {
 	font-family: 'Stardos Stencil', system-ui;
 	font-weight: 400;
