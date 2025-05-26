@@ -29,6 +29,7 @@ export const letterWeights = {
 	Z: 0.05 // Very rare
 };
 
+// Scrabble points
 export const letterPoints = {
 	A: 1,
 	B: 3,
@@ -59,7 +60,8 @@ export const letterPoints = {
 };
 
 const vowels = 'AEIOU';
-const maxDuplicates = 3;
+const maxDuplicates = 3; // RRR = 3
+const maxDuplicateSets = 4; // How many sets of letters are duplicated e.g. RRSSTT would be 3
 
 export function getLetters(count = 16, rng = Math.random) {
 	const lettersArray = makeWeightedLettersArray();
@@ -67,25 +69,55 @@ export function getLetters(count = 16, rng = Math.random) {
 	let res = [];
 	let characterMapping = new Map();
 	let vowelCount = 0;
+	let duplicateSets = 0;
 
 	const maxVowels = Math.ceil(count / 2);
+	const minVowels = Math.ceil(count / 3);
 
 	for (const char of lettersArray) {
 		// Not too many duplicates
 		const currentCharCount = characterMapping.get(char);
 		const tooManyDuplicates = currentCharCount === maxDuplicates;
+
 		// Not too many vowels
 		const isAVowel = vowels.includes(char);
 		const tooManyVowels = isAVowel && vowelCount === maxVowels;
+
 		if (tooManyDuplicates || tooManyVowels) {
 			continue;
 		}
 
 		isAVowel && vowelCount++;
 		characterMapping.set(char, currentCharCount === undefined ? 1 : currentCharCount + 1);
+
+		// Cheeky logic here. We're incrementing duplicateSets each time a character reaches a count of 2.
+		if (currentCharCount === 1) {
+			duplicateSets++;
+		}
+
+		if (duplicateSets > maxDuplicateSets) {
+			return getLetters(count, rng);
+		}
+
+		// Make sure if we're adding a Q to add a U too.
+		if (char === 'Q') {
+			if (res.length + 1 === count) {
+				continue;
+			} else {
+				lettersArray.splice(0, 0, 'U');
+			}
+		}
+
 		res.push(char);
 
 		if (res.length === count) break;
+	}
+
+	const notEnoughVowels = vowelCount < minVowels;
+	const aQWithNoU = characterMapping.get('Q') > 0 && !characterMapping.get('U');
+
+	if (notEnoughVowels || aQWithNoU) {
+		return getLetters(count, rng);
 	}
 
 	return res;
