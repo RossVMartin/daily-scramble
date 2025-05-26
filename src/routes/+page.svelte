@@ -263,7 +263,7 @@
 
 {#if definitionWord !== null}
 	<div
-		class="md:hover:bg-pink-600/3 fixed bottom-2 right-2 z-50 flex h-fit w-fit min-w-[200px] max-w-[320px] flex-col gap-2 rounded-lg bg-pink-800/60 p-3 shadow-xl transition-all duration-150 md:max-w-[400px] md:p-4 lg:left-5 lg:top-5"
+		class="fixed right-2 bottom-2 z-50 flex h-fit w-fit max-w-[320px] min-w-[200px] flex-col gap-2 rounded-lg bg-pink-800/60 p-3 shadow-xl transition-all duration-150 md:max-w-[400px] md:p-4 md:hover:bg-pink-600/3 lg:top-5 lg:left-5"
 	>
 		<div class="relative w-full">
 			<h2 class="text-lg font-bold text-white/90 md:text-2xl">{definitionWord}</h2>
@@ -272,7 +272,7 @@
 				onclick={() => {
 					definitionWord = null;
 				}}
-				class="absolute right-0 top-0 text-lg font-bold text-white/60 hover:text-white">✕</button
+				class="absolute top-0 right-0 text-lg font-bold text-white/60 hover:text-white">✕</button
 			>
 		</div>
 
@@ -295,7 +295,7 @@
 <div class="relative flex min-h-screen flex-col">
 	{#if showDictionaryWarning && wordTrie === null}
 		<div
-			class="fixed left-5 top-5 flex flex-col items-center justify-center gap-1 rounded-md bg-amber-500/30 p-2 text-center text-base text-white"
+			class="fixed top-5 left-5 flex flex-col items-center justify-center gap-1 rounded-md bg-amber-500/30 p-2 text-center text-base text-white"
 			out:blur={{ duration: 200 }}
 			in:fade={{ duration: 200 }}
 		>
@@ -307,7 +307,7 @@
 
 	{#if showIfValidWord}
 		<div
-			class="fixed right-2 top-5 z-50 text-white/90 shadow-md md:right-5 md:top-8"
+			class="fixed top-5 right-2 z-50 text-white/90 shadow-md md:top-8 md:right-5"
 			in:fade={{ duration: 500 }}
 			out:fade={{ duration: 500 }}
 		>
@@ -358,7 +358,7 @@
 					in:fly={{ duration: 0 }}
 					out:fly={{ duration: 0 }}
 					class:shake-twist={letterInputIsInvalid}
-					class="fixed left-14 top-14 z-50 md:absolute md:left-[-100px] md:top-[-100px]"
+					class="fixed top-14 left-14 z-50 md:absolute md:top-[-100px] md:left-[-100px]"
 				>
 					<span
 						class="stardos-stencil-regular block rounded-xl bg-red-500/40 p-4 text-3xl text-red-100 shadow-lg backdrop-blur-xl md:text-5xl"
@@ -392,10 +392,9 @@
 			<button
 				bind:this={checkAnswerButton}
 				disabled={checkAnswerButtonDisabled}
-				class:hover:text-white={!checkAnswerButtonDisabled}
-				class:text-opacity-50={checkAnswerButtonDisabled}
-				class:text-opacity-80={!checkAnswerButtonDisabled}
-				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white shadow-md"
+				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white shadow-md {checkAnswerButtonDisabled
+					? 'text-white/50'
+					: 'text-white/80 hover:text-white'}"
 				onmouseenter={checkAnswerMouseEnter}
 				onmouseleave={checkAnswerMouseLeave}
 				onclick={checkAnswer}>Check Answer</button

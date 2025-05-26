@@ -1,6 +1,4 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import 'tailwindcss';
 
 .stardos-stencil-regular {
 	font-family: 'Stardos Stencil', system-ui;
@@ -65,4 +63,12 @@
 
 .shake-twist {
 	animation: shake-twist 0.4s ease-in-out;
+}
+
+button {
+	cursor: default; /* normal cursor by default */
+}
+
+button:enabled {
+	cursor: pointer; /* pointer cursor only when enabled */
 }
