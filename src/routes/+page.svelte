@@ -6,6 +6,8 @@
 	import { sleep } from '$lib/utils.js';
 	import { slide, fly, fade, blur } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import DarkMode from '../icons/DarkMode.svelte';
+	import LightMode from '../icons/LightMode.svelte';
 
 	let loading = $state(true);
 
@@ -46,6 +48,8 @@
 	let definitionWord = $state(null);
 	let definitions = {};
 
+	let darkMode = $state(null);
+
 	function addLetter(index) {
 		word.push({
 			letter: letters[index].letter,
@@ -83,6 +87,7 @@
 	}
 
 	onMount(async () => {
+		darkMode = document.documentElement.classList.contains('dark');
 		loading = false;
 		validWords = loadStorage();
 
@@ -259,24 +264,34 @@
 		const data = await res.json();
 		return data;
 	}
+
+	function handleSwitchTheme() {
+		const root = document.documentElement;
+		if (root.classList.contains('dark')) {
+			root.classList.remove('dark');
+		} else {
+			root.classList.add('dark');
+		}
+		darkMode = !darkMode;
+	}
 </script>
 
 {#if definitionWord !== null}
 	<div
-		class="fixed right-2 bottom-2 z-50 flex h-fit w-fit max-w-[320px] min-w-[200px] flex-col gap-2 rounded-lg bg-pink-800/60 p-3 shadow-xl transition-all duration-150 md:max-w-[400px] md:p-4 md:hover:bg-pink-600/3 lg:top-5 lg:left-5"
+		class="bg-accent/60 md:hover:bg-accent/30 fixed right-2 bottom-2 z-50 flex h-fit w-fit max-w-[320px] min-w-[200px] flex-col gap-2 rounded-lg p-3 shadow-lg transition-all duration-150 md:max-w-[400px] md:p-4 lg:top-5 lg:left-5"
 	>
 		<div class="relative w-full">
-			<h2 class="text-lg font-bold text-white/90 md:text-2xl">{definitionWord}</h2>
+			<h2 class="text-text/90 text-lg font-bold md:text-2xl">{definitionWord}</h2>
 			<button
 				title="Close"
 				onclick={() => {
 					definitionWord = null;
 				}}
-				class="absolute top-0 right-0 text-lg font-bold text-white/60 hover:text-white">✕</button
+				class="text-text/60 hover:text-text absolute top-0 right-0 text-lg font-bold">✕</button
 			>
 		</div>
 
-		<span class="text-sm text-white/80 md:text-base"
+		<span class="text-text/90 text-sm md:text-base"
 			>{definitions[definitionWord] ?? 'No definition found'}</span
 		>
 		{#if definitions[definitionWord]}
@@ -285,7 +300,37 @@
 					href={`https://en.wiktionary.org/wiki/${definitionWord}`}
 					target="_blank"
 					rel="noopener noreferrer"
-					class="w-fit text-sm font-medium text-white/70 hover:text-white">Read More</a
+					class="text-text/70 hover:text-text w-fit text-sm font-medium">Read More</a
+				>
+			</div>
+		{/if}
+	</div>
+{/if}
+{#if definitionWord !== null}
+	<div
+		class="bg-accent/60 md:hover:bg-accent/30 fixed right-2 bottom-2 z-50 flex h-fit w-fit max-w-[320px] min-w-[200px] flex-col gap-2 rounded-lg p-3 shadow-lg transition-all duration-150 md:max-w-[400px] md:p-4 lg:top-5 lg:left-5"
+	>
+		<div class="relative w-full">
+			<h2 class="text-text/90 text-lg font-bold md:text-2xl">{definitionWord}</h2>
+			<button
+				title="Close"
+				onclick={() => {
+					definitionWord = null;
+				}}
+				class="text-text/60 hover:text-text absolute top-0 right-0 text-lg font-bold">✕</button
+			>
+		</div>
+
+		<span class="text-text/80 text-sm md:text-base"
+			>{definitions[definitionWord] ?? 'No definition found'}</span
+		>
+		{#if definitions[definitionWord]}
+			<div class="flex w-full justify-end">
+				<a
+					href={`https://en.wiktionary.org/wiki/${definitionWord}`}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-text/70 hover:text-text w-fit text-sm font-medium">Read More</a
 				>
 			</div>
 		{/if}
@@ -295,7 +340,7 @@
 <div class="relative flex min-h-screen flex-col">
 	{#if showDictionaryWarning && wordTrie === null}
 		<div
-			class="fixed top-5 left-5 flex flex-col items-center justify-center gap-1 rounded-md bg-amber-500/30 p-2 text-center text-base text-white"
+			class="bg-warning/30 text-text fixed top-5 left-5 flex flex-col items-center justify-center gap-1 rounded-md p-2 text-center text-base"
 			out:blur={{ duration: 200 }}
 			in:fade={{ duration: 200 }}
 		>
@@ -307,16 +352,16 @@
 
 	{#if showIfValidWord}
 		<div
-			class="fixed top-5 right-2 z-50 text-white/90 shadow-md md:top-8 md:right-5"
+			class="text-text/90 fixed top-5 right-2 z-50 shadow-md md:top-8 md:right-5"
 			in:fade={{ duration: 500 }}
 			out:fade={{ duration: 500 }}
 		>
 			{#if isTheWordValid}
-				<span class="relative rounded-lg bg-green-800/90 p-3 text-lg md:p-4 md:text-2xl"
+				<span class="bg-success/90 text-text relative rounded-lg p-3 text-lg md:p-4 md:text-2xl"
 					>'{wordChecked}' is a valid word!</span
 				>
 			{:else}
-				<span class="relative rounded-lg bg-red-800/90 p-3 text-lg md:p-4 md:text-2xl"
+				<span class="bg-error/90 text-text relative rounded-lg p-3 text-lg md:p-4 md:text-2xl"
 					>'{wordChecked}' is not a valid word.</span
 				>
 			{/if}
@@ -325,16 +370,27 @@
 
 	<div
 		in:fade={{ duration: 100 }}
-		class="roboto-400 flex min-h-screen w-full flex-col items-center gap-y-4 bg-neutral-900 p-4 text-white md:gap-y-10"
+		class="roboto-400 bg-bg text-text flex min-h-screen w-full flex-col items-center gap-y-4 p-4 md:gap-y-10"
 	>
-		<!-- Title -->
-		<h1
-			class="stardos-stencil-bold rounded-lg border-0 border-white/50 p-4 text-4xl text-white/90 md:text-6xl"
+		<!-- Theme switcher -->
+		<button
+			title="Change theme"
+			onclick={handleSwitchTheme}
+			class="text-text/80 bg-accent/10 hover:bg-accent/30 border-bg-secondary absolute top-2 right-2 rounded-lg border p-2 transition-all duration-150"
 		>
+			{#if typeof document !== 'undefined' && darkMode}
+				<LightMode size={30} />
+			{:else}
+				<DarkMode size={30} />
+			{/if}
+		</button>
+
+		<!-- Title -->
+		<h1 class="stardos-stencil-bold text-text/90 rounded-lg border-0 p-4 text-4xl md:text-6xl">
 			Daily Scramble
 		</h1>
 
-		<p class="mt-[-20px] text-white/80 md:mt-[-40px] md:text-lg">
+		<p class="text-text/80 mt-[-20px] md:mt-[-40px] md:text-lg">
 			Try to find the longest word! A new scramble daily.
 		</p>
 
@@ -361,7 +417,7 @@
 					class="fixed top-14 left-14 z-50 md:absolute md:top-[-100px] md:left-[-100px]"
 				>
 					<span
-						class="stardos-stencil-regular block rounded-xl bg-red-500/40 p-4 text-3xl text-red-100 shadow-lg backdrop-blur-xl md:text-5xl"
+						class="stardos-stencil-regular bg-error/60 text-text/80 block rounded-xl p-4 text-3xl shadow-lg backdrop-blur-xl md:text-5xl"
 						>{invalidLetter}</span
 					>
 				</div>
@@ -370,7 +426,7 @@
 				{#each letters as { letter, used }, index}
 					{#if used}
 						<span
-							class="stardos-stencil-regular block w-full p-4 text-center text-3xl text-white/30 md:text-5xl"
+							class="stardos-stencil-regular text-text/30 block w-full p-4 text-center text-3xl md:text-5xl"
 							>{letter}</span
 						>
 					{:else}
@@ -379,7 +435,7 @@
 							onclick={() => {
 								addLetter(index);
 							}}
-							class="stardos-stencil-regular rounded-lg p-4 text-3xl hover:bg-pink-600/30 hover:shadow-lg md:text-5xl"
+							class="stardos-stencil-regular hover:bg-accent/30 rounded-lg p-4 text-3xl hover:shadow-lg md:text-5xl"
 							>{letter}</button
 						>
 					{/if}
@@ -392,9 +448,9 @@
 			<button
 				bind:this={checkAnswerButton}
 				disabled={checkAnswerButtonDisabled}
-				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white shadow-md {checkAnswerButtonDisabled
-					? 'text-white/50'
-					: 'text-white/80 hover:text-white'}"
+				class="bg-bg-secondary text-text border-text/30 rounded-lg border px-4 py-2 shadow-md dark:border-0 {checkAnswerButtonDisabled
+					? 'text-text/50'
+					: 'text-text/80 hover:text-text'}"
 				onmouseenter={checkAnswerMouseEnter}
 				onmouseleave={checkAnswerMouseLeave}
 				onclick={checkAnswer}>Check Answer</button
@@ -403,15 +459,15 @@
 			<button
 				disabled={wordTrie === null || disableAllInputs}
 				onclick={handleFindLongestWord}
-				class="rounded-lg bg-neutral-800/60 px-4 py-2 {wordTrie
-					? 'text-white/80 hover:text-white'
-					: 'text-white/50'} shadow-md">Show Longest Word</button
+				class="bg-bg-secondary rounded-lg px-4 py-2 {wordTrie
+					? 'text-text/80 hover:text-text'
+					: 'text-text/50'} border-text/30 border shadow-md dark:border-0">Show Longest Word</button
 			>
 
 			<button
 				disabled={disableAllInputs}
 				onclick={clearCurrentWord}
-				class="rounded-lg bg-neutral-800/60 px-4 py-2 text-white/80 shadow-md hover:text-white"
+				class="bg-bg-secondary text-text/80 hover:text-text border-text/30 rounded-lg border px-4 py-2 shadow-md dark:border-0"
 				>Clear</button
 			>
 		</div>
@@ -420,16 +476,16 @@
 		{#if validWords.length && !loading}
 			<div
 				in:fade={{ duration: 350 }}
-				class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/10 bg-neutral-800/30 p-4 shadow-lg md:p-6 md:text-lg"
+				class="dark:border-text/10 border-text/30 bg-bg-secondary flex flex-col items-center justify-center gap-2 rounded-lg border p-4 shadow-lg md:p-6 md:text-lg"
 			>
 				<!-- <span class="fjalla-one-regular text-lg text-white md:mb-2 md:mt-[-10px] md:text-2xl"
-					>My Words</span
-				> -->
+                    >My Words</span
+                > -->
 
-				<div class="grid grid-cols-3 text-center text-white/80">
-					<span class="p-3 font-bold text-white/90">Word</span>
-					<span class="p-3 font-bold text-white/90">Length</span>
-					<span class="p-3 font-bold text-white/90">Scrabble Points</span>
+				<div class="text-text/80 grid grid-cols-3 text-center">
+					<span class="text-text/90 p-3 font-bold">Word</span>
+					<span class="text-text/90 p-3 font-bold">Length</span>
+					<span class="text-text/90 p-3 font-bold">Scrabble Points</span>
 					{#each sortedValidWords as validWord}
 						<div class="flex w-full items-center justify-center">
 							<button
@@ -437,8 +493,8 @@
 									selectDefinitionWord(validWord);
 								}}
 								class="w-fit rounded-md p-1 {definitionWord === validWord
-									? 'bg-pink-500/40'
-									: 'hover:bg-pink-500/30'} hover:text-white">{validWord}</button
+									? 'bg-accent/40'
+									: 'hover:bg-accent/30'} hover:text-text">{validWord}</button
 							>
 						</div>
 						<span>{validWord.length}</span>
@@ -449,9 +505,9 @@
 		{/if}
 
 		<!-- Footer e.g flex-grow and made by Ross etc -->
-		<div class="flex-grow items-end justify-end text-center text-xs text-white/80 md:text-sm">
-			New scrambles every day (UTC time). Words are validated with a&nbsp;<a
-				class="underline hover:text-white"
+		<div class="text-text/80 flex-grow items-end justify-end text-center text-xs md:text-sm">
+			New scrambles every day (UTC time). Words are validated with a <a
+				class="hover:text-text underline"
 				href="https://www.freescrabbledictionary.com/sowpods/"
 			>
 				European SOWPODS dictionary</a

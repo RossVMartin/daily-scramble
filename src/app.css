@@ -1,5 +1,34 @@
 @import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+	--color-bg: hsl(0, 0%, 95%); /* Slightly brighter for warmth */
+	--color-bg-secondary: hsl(0, 5%, 91%);
+	--color-text: hsl(0, 0%, 10%); /* Darker text for clarity */
+	--color-accent: hsl(330, 60%, 70%); /* Lower saturation and lightness */
+	--color-warning: hsl(40, 70%, 50%); /* Softer amber */
+	--color-error: hsl(0, 50%, 75%); /* Soft red */
+	--color-success: hsl(120, 50%, 85%); /* Soft green */
+}
+
+.dark {
+	/* Dark theme (matches your current colors) */
+	--color-bg: hsl(220, 15%, 10%); /* Like bg-neutral-800 */
+	--color-bg-secondary: hsl(220, 15%, 13%); /* Like bg-neutral-800 */
+	--color-text: hsl(0, 0%, 95%); /* Like text-white/90 */
+	--color-accent: hsl(330, 50%, 40%); /* Like bg-pink-800 */
+	--color-warning: hsl(40, 80%, 40%); /* Like bg-amber-500 */
+	--color-success: hsl(120, 60%, 30%); /* Like bg-green-800 */
+	--color-error: hsl(0, 60%, 40%); /* Like bg-red-800 */
+}
+
+/* Keep your fonts, animations, etc. */
+.stardos-stencil-regular {
+	font-family: 'Stardos Stencil', system-ui;
+	font-weight: 400;
+	font-style: normal;
+}
+/* ... rest of your styles ... */
 .stardos-stencil-regular {
 	font-family: 'Stardos Stencil', system-ui;
 	font-weight: 400;
@@ -71,4 +100,8 @@ button {
 
 button:enabled {
 	cursor: pointer; /* pointer cursor only when enabled */
+}
+
+.bg-bg {
+	background-color: var(--color-bg);
 }

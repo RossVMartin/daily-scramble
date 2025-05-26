@@ -1,8 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-	content: ['./src/**/*.{html,js,svelte,ts}'],
+	darkMode: 'class',
+	content: ['./src/**/*.{html,svelte,js,ts}'],
 	theme: {
-		extend: {}
+		extend: {
+			colors: {
+				bg: 'hsl(var(--color-bg))' // Wrap in hsl() for PostCSS compatibility
+			}
+		}
 	},
 	plugins: []
 };
