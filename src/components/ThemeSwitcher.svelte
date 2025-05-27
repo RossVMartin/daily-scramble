@@ -1,13 +1,7 @@
 <script>
 	import { darkMode } from '$lib/stores.js';
-	import { onMount } from 'svelte';
-
 	import DarkMode from '$icons/DarkMode.svelte';
 	import LightMode from '$icons/LightMode.svelte';
-
-	onMount(() => {
-		darkMode.set(document.documentElement.classList.contains('dark'));
-	});
 
 	function handleSwitchTheme() {
 		const root = document.documentElement;

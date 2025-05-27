@@ -3,7 +3,17 @@
 	<head>
 		<script>
 			try {
-				if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				const storage = localStorage.getItem('darkMode');
+				if (storage === null) {
+					if (darkModePreference) {
+						document.documentElement.classList.add('dark');
+						localStorage.setItem('darkMode', true);
+					} else {
+						document.documentElement.classList.remove('dark');
+						localStorage.setItem('darkMode', false);
+					}
+				} else if (storage === 'true') {
 					document.documentElement.classList.add('dark');
 				} else {
 					document.documentElement.classList.remove('dark');
