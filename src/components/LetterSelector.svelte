@@ -1,5 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
+	import { flip } from 'svelte/animate';
+	import { cubicOut, elasticOut, backInOut } from 'svelte/easing';
+
 	let { checkAnswerButton } = $props();
 
 	import { word, disableAllInputs, letters } from '$lib/stores.js';
@@ -76,22 +79,24 @@
 		</div>
 	{/if}
 	<div class="grid grid-cols-9 justify-center">
-		{#each $letters as { letter, used }, index}
-			{#if used}
-				<span
-					class="stardos-stencil-regular text-text/30 block w-full p-4 text-center text-3xl md:text-5xl"
-					>{letter}</span
-				>
-			{:else}
-				<button
-					disabled={$disableAllInputs}
-					onclick={() => {
-						word.addLetter(index);
-					}}
-					class="stardos-stencil-regular hover:bg-accent/30 rounded-lg p-4 text-3xl hover:shadow-lg md:text-5xl"
-					>{letter}</button
-				>
-			{/if}
+		{#each $letters as { letter, used, id }, index (id)}
+			<div animate:flip={{ duration: 500 + Math.round(Math.random() * 1000), easing: backInOut }}>
+				{#if used}
+					<span
+						class="stardos-stencil-regular text-text/30 block w-full p-4 text-center text-3xl md:text-5xl"
+						>{letter}</span
+					>
+				{:else}
+					<button
+						disabled={$disableAllInputs}
+						onclick={() => {
+							word.addLetter(index);
+						}}
+						class="stardos-stencil-regular hover:bg-accent/30 w-full rounded-lg p-4 text-center text-3xl hover:shadow-lg md:text-5xl"
+						>{letter}</button
+					>
+				{/if}
+			</div>
 		{/each}
 	</div>
 </div>

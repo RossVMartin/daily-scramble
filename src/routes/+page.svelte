@@ -4,10 +4,9 @@
 	import { getNowUTC } from '$lib/dateUtils.js';
 	import { getLetters, letterPoints } from '$lib/letters.js';
 	import { isValidWord, findLongestWord } from '$lib/wordTrie.js';
-	import { sleep } from '$lib/utils.js';
+	import { shuffleArraySeeded, sleep } from '$lib/utils.js';
 	import { slide, fly, fade, blur } from 'svelte/transition';
-	import { onMount } from 'svelte';
-
+	import { onMount, tick } from 'svelte';
 	import { selectDefinitionWord } from '$lib/definitions.js';
 
 	import ThemeSwitcher from '$components/ThemeSwitcher.svelte';
@@ -22,10 +21,11 @@
 
 	const lettersCount = 18;
 	letters.set(
-		getLetters(lettersCount, rng).map((l) => {
+		getLetters(lettersCount, rng).map((letter, index) => {
 			return {
-				letter: l,
-				used: false
+				letter,
+				used: false,
+				id: index
 			};
 		})
 	);
@@ -43,7 +43,6 @@
 	);
 
 	function checkAnswer() {
-		console.log('wordAsString', $wordAsString);
 		if (!wordTrie) {
 			console.log('Wordtrie is not initialised yet');
 			return;
@@ -126,6 +125,15 @@
 		word.clear();
 		word.write(longestWord);
 	}
+
+	async function shuffleLetters() {
+		const iterations = Math.floor(Math.random() * 2) + 1;
+		for (let i = 0; i < iterations; i++) {
+			letters.set(shuffleArraySeeded($letters));
+			await tick();
+			await sleep(Math.floor(Math.random() * 100) + 50);
+		}
+	}
 </script>
 
 <Definition />
@@ -197,7 +205,7 @@
 		<LetterSelector {checkAnswerButton} />
 
 		<!-- Buttons -->
-		<div class="flex w-full justify-center gap-4 text-sm md:text-xl">
+		<div class="flex w-full flex-wrap justify-center gap-4 text-sm md:text-xl">
 			<button
 				bind:this={checkAnswerButton}
 				disabled={checkAnswerButtonDisabled}
@@ -215,6 +223,14 @@
 				class="bg-bg-secondary rounded-lg px-4 py-2 {wordTrie
 					? 'text-text/80 hover:text-text'
 					: 'text-text/50'} border-text/30 border shadow-md dark:border-0">Show Longest Word</button
+			>
+
+			<button
+				disabled={$disableAllInputs}
+				onclick={shuffleLetters}
+				class="bg-bg-secondary rounded-lg px-4 py-2 {disableAllInputs
+					? 'text-text/80 hover:text-text'
+					: 'text-text/50'} border-text/30 border shadow-md dark:border-0">Shuffle</button
 			>
 
 			<button
