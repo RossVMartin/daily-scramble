@@ -59,28 +59,31 @@ export const letterPoints = {
 	Z: 10
 };
 
-const vowels = 'AEIOU';
+const vowels = new Set(['A', 'E', 'I', 'O', 'U']);
 const maxDuplicates = 3; // RRR = 3
 const maxDuplicateSets = 4; // How many sets of letters are duplicated e.g. RRSSTT would be 3
 
-export function getLetters(count = 16, rng = Math.random) {
+export function getLetters(count = 16, rng = Math.random, retries = 0) {
 	const lettersArray = makeWeightedLettersArray();
 	shuffleArraySeeded(lettersArray, rng);
+
 	let res = [];
 	let characterMapping = new Map();
 	let vowelCount = 0;
 	let duplicateSets = 0;
+	let shuffleAgain = false;
 
 	const maxVowels = Math.ceil(count / 2);
 	const minVowels = Math.ceil(count / 3);
 
-	for (const char of lettersArray) {
+	for (let i = 0; i < lettersArray.length; i++) {
+		const char = lettersArray[i];
 		// Not too many duplicates
 		const currentCharCount = characterMapping.get(char);
 		const tooManyDuplicates = currentCharCount === maxDuplicates;
 
 		// Not too many vowels
-		const isAVowel = vowels.includes(char);
+		const isAVowel = vowels.has(char);
 		const tooManyVowels = isAVowel && vowelCount === maxVowels;
 
 		if (tooManyDuplicates || tooManyVowels) {
@@ -92,7 +95,8 @@ export function getLetters(count = 16, rng = Math.random) {
 			if (res.length + 1 === count) {
 				continue;
 			} else {
-				lettersArray.splice(0, 0, 'U');
+				lettersArray.splice(i + 1, 0, 'U');
+				shuffleAgain = true;
 			}
 		}
 
@@ -105,7 +109,7 @@ export function getLetters(count = 16, rng = Math.random) {
 		}
 
 		if (duplicateSets > maxDuplicateSets) {
-			return getLetters(count, rng);
+			return getLetters(count, rng, retries + 1);
 		}
 
 		res.push(char);
@@ -115,10 +119,13 @@ export function getLetters(count = 16, rng = Math.random) {
 
 	const notEnoughVowels = vowelCount < minVowels;
 	const aQWithNoU = characterMapping.get('Q') > 0 && !characterMapping.get('U');
+	const notLongEnough = res.length !== count;
 
-	if (notEnoughVowels || aQWithNoU) {
-		return getLetters(count, rng);
+	if (notEnoughVowels || aQWithNoU || notLongEnough) {
+		return getLetters(count, rng, retries + 1);
 	}
+
+	shuffleAgain && shuffleArraySeeded(res, rng);
 
 	return res;
 }
