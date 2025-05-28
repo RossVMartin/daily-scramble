@@ -3,7 +3,7 @@
 	import { word, wordAsString, letters, disableAllInputs } from '$src/lib/stores';
 	import { getNowUTC } from '$lib/dateUtils.js';
 	import { getLetters, letterPoints } from '$lib/letters.js';
-	import { isValidWord, findLongestWord } from '$lib/wordTrie.js';
+	import { isValidWord, findLongestWord, findRandomWord } from '$lib/wordTrie.js';
 	import { shuffleArraySeeded, sleep } from '$lib/utils.js';
 	import { slide, fly, fade, blur } from 'svelte/transition';
 	import { onMount, tick } from 'svelte';
@@ -126,6 +126,37 @@
 		word.write(longestWord);
 	}
 
+	async function revealRandomWord() {
+		const letterSet = $letters.map((l) => l.letter);
+		const foundWord = findRandomWord(
+			letterSet,
+			wordTrie,
+			validWords, // Pass found words
+			4, // minLength
+			9, // maxLength (won't reveal 10+ letter words)
+			0.7, // lengthPreference
+			false // returnMultiple
+		);
+		if (foundWord) {
+			word.clear();
+			word.write(foundWord);
+		}
+	}
+
+	async function revealMultipleRandomWords() {
+		const letterSet = $letters.map((l) => l.letter);
+		const words = findRandomWord(
+			letterSet,
+			wordTrie,
+			validWords,
+			4,
+			0.7,
+			true, // returnMultiple
+			3 // maxResults
+		);
+		console.log(words);
+	}
+
 	async function shuffleLetters() {
 		const iterations = Math.floor(Math.random() * 2) + 1;
 		for (let i = 0; i < iterations; i++) {
@@ -223,6 +254,15 @@
 				class="bg-bg-secondary rounded-lg px-4 py-2 {wordTrie
 					? 'text-text/80 hover:text-text'
 					: 'text-text/50'} border-text/30 border shadow-md dark:border-0">Show Longest Word</button
+			>
+
+			<button
+				disabled={wordTrie === null || $disableAllInputs}
+				onclick={revealRandomWord}
+				class="bg-bg-secondary rounded-lg px-4 py-2 {wordTrie
+					? 'text-text/80 hover:text-text'
+					: 'text-text/50'} border-text/30 border shadow-md dark:border-0"
+				>Reveal Random Word</button
 			>
 
 			<button

@@ -80,5 +80,97 @@ export async function processFile(inputFilePath, outputFilePath) {
 		console.error('Error processing file:', error);
 	}
 }
+export function findRandomWord(
+	letters,
+	trie,
+	foundWords = [],
+	minLength = 3,
+	maxLength = Infinity, // Default to no upper limit
+	lengthPreference = 0.5,
+	returnMultiple = false,
+	maxResults = 3
+) {
+	// Convert foundWords to a Set for faster lookup
+	const foundWordsSet = new Set(foundWords.map((word) => word.toUpperCase()));
 
+	// Collect all possible words within length constraints
+	const letterCount = {};
+	for (let letter of letters) {
+		letterCount[letter] = (letterCount[letter] || 0) + 1;
+	}
+
+	const words = [];
+	function traverse(node, path = '', usedLetters = {}) {
+		// Only add words within the length range and not already found
+		if (
+			node.isWord &&
+			path.length >= minLength &&
+			path.length <= maxLength &&
+			!foundWordsSet.has(path)
+		) {
+			words.push(path);
+		}
+		// Stop traversing if the current path is already at or beyond maxLength
+		if (path.length < maxLength) {
+			for (let char in node) {
+				if (char !== 'isWord' && (usedLetters[char] || 0) < (letterCount[char] || 0)) {
+					traverse(node[char], path + char, {
+						...usedLetters,
+						[char]: (usedLetters[char] || 0) + 1
+					});
+				}
+			}
+		}
+	}
+	traverse(trie);
+
+	if (words.length === 0) {
+		return returnMultiple ? [] : null;
+	}
+
+	// Weight words based on length and lengthPreference
+	const weights = words.map((word) => {
+		const lengthFactor = word.length;
+		return Math.pow(lengthFactor, 1 + lengthPreference * 3);
+	});
+
+	// Normalize weights for random selection
+	const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+	if (totalWeight === 0) {
+		return returnMultiple ? [] : null;
+	}
+
+	if (returnMultiple) {
+		// Select multiple words without replacement
+		const selectedWords = [];
+		const availableWords = [...words];
+		const availableWeights = [...weights];
+		let remainingWeight = totalWeight;
+
+		for (let i = 0; i < Math.min(maxResults, availableWords.length); i++) {
+			let random = Math.random() * remainingWeight;
+			for (let j = 0; j < availableWords.length; j++) {
+				random -= availableWeights[j];
+				if (random <= 0) {
+					selectedWords.push(availableWords[j]);
+					remainingWeight -= availableWeights[j];
+					availableWords.splice(j, 1);
+					availableWeights.splice(j, 1);
+					break;
+				}
+			}
+		}
+		return selectedWords;
+	} else {
+		// Select a single word
+		let random = Math.random() * totalWeight;
+		for (let i = 0; i < words.length; i++) {
+			random -= weights[i];
+			if (random <= 0) {
+				return words[i];
+			}
+		}
+		return words[words.length - 1];
+	}
+}
 // processFile(path.resolve('./sowpods.txt'), path.resolve('./wordTrieSowpods.json'));

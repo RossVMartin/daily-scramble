@@ -7,7 +7,7 @@
 	--color-bg: hsl(0, 0%, 95%); /* Slightly brighter for warmth */
 	--color-bg-secondary: hsl(0, 5%, 91%);
 	--color-text: hsl(0, 0%, 10%); /* Darker text for clarity */
-	--color-accent: hsl(175, 40%, 65%); /* Lower saturation and lightness */
+	--color-accent: hsl(170, 50%, 45%); /* Lower saturation and lightness */
 	--color-warning: hsl(40, 70%, 50%); /* Softer amber */
 	--color-error: hsl(0, 40%, 70%); /* Soft red */
 	--color-success: hsl(120, 40%, 70%); /* Soft green */
