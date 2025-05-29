@@ -1,7 +1,7 @@
 <script>
 	let { buttons } = $props();
 	import { disableAllInputs } from '$lib/stores.js';
-
+	let disableAll = $derived($disableAllInputs);
 	const funcOrValue = (val) => (typeof val === 'function' ? val() : val);
 
 	function flashMe(
@@ -21,7 +21,7 @@
 </script>
 
 <div class="flex flex-wrap justify-center w-full gap-4 text-sm md:text-xl">
-	{#each buttons as { onclick, label, disabled = $disableAllInputs, id, onmouseenter = () => {}, onmouseleave = () => {} }}
+	{#each buttons as { onclick, label, disabled = disableAll, id, onmouseenter = () => {}, onmouseleave = () => {} }}
 		<button
 			{id}
 			disabled={funcOrValue(disabled)}
