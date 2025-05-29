@@ -32,7 +32,7 @@ export function processDefinitionData(data) {
 export async function selectDefinitionWord(word, forceEnable = false) {
 	const $definitionWord = get(definitionWord);
 
-	if (!forceEnable && word === definitionWord) {
+	if (!forceEnable && word === $definitionWord) {
 		definitionWord.set(null);
 		return;
 	}
