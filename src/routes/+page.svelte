@@ -68,7 +68,8 @@
 		loading = false;
 		validWords = loadStorage();
 
-		const res = await fetch('/wordTrieSowpods.json');
+		// const res = await fetch('/wordTrieSowpods.json');
+		const res = await fetch('/wordTrieWordnik.json');
 		wordTrie = await res.json();
 	});
 
@@ -292,14 +293,18 @@
 
 		<!-- Footer e.g flex-grow and made by Ross etc -->
 		<div class="text-text/80 flex flex-grow items-end justify-end text-center text-xs md:text-sm">
-			<div>
+			<!-- <div>
 				New scrambles every day (UTC time). Words are validated with a <a
-					class="hover:text-text underline"
+					class="underline hover:text-text"
 					href="https://www.freescrabbledictionary.com/sowpods/"
 				>
 					European SOWPODS dictionary</a
 				>.
-			</div>
+			</div> -->
+			New scrambles every day (UTC time). Source code on&nbsp;<a
+				href="https://github.com/RossVMartin/daily-scramble"
+				class="hover:text-text underline">GitHub</a
+			>.
 		</div>
 	</div>
 </div>

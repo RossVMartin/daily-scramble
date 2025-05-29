@@ -173,4 +173,8 @@ export function findRandomWord(
 		return words[words.length - 1];
 	}
 }
-// processFile(path.resolve('./sowpods.txt'), path.resolve('./wordTrieSowpods.json'));
+
+// processFile(
+// 	path.resolve('./wordlist-20210729-wordnik.txt'),
+// 	path.resolve('./wordTrieWordnik.json')
+// );
