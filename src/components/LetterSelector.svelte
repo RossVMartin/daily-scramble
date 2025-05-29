@@ -3,8 +3,6 @@
 	import { flip } from 'svelte/animate';
 	import { cubicOut, elasticOut, backInOut } from 'svelte/easing';
 
-	let { checkAnswerButton } = $props();
-
 	import { word, disableAllInputs, letters } from '$lib/stores.js';
 
 	let letterInputIsInvalid = $state(false);
@@ -35,8 +33,8 @@
 			!processingInvalidLettersStack && showInvalidLetters();
 		} else if (key === 'BACKSPACE' && $word.length > 0) {
 			word.removeLetter($word.length - 1);
-		} else if (key === 'ENTER' && checkAnswerButton) {
-			checkAnswerButton.click();
+		} else if (key === 'ENTER') {
+			document.getElementById('checkAnswer').click();
 		} else if (key === 'ESCAPE') {
 			word.clear();
 		}

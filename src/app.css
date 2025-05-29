@@ -6,6 +6,7 @@
 	--breakpoint-xs: 30rem;
 	--color-bg: hsl(0, 0%, 95%); /* Slightly brighter for warmth */
 	--color-bg-secondary: hsl(0, 5%, 91%);
+	--color-bg-secondary-soft: hsl(0, 8%, 70%);
 	--color-text: hsl(0, 0%, 10%); /* Darker text for clarity */
 	--color-accent: hsl(170, 50%, 45%); /* Lower saturation and lightness */
 	--color-warning: hsl(40, 70%, 50%); /* Softer amber */
@@ -17,6 +18,7 @@
 	/* Dark theme (matches your current colors) */
 	--color-bg: hsl(220, 15%, 10%); /* Like bg-neutral-800 */
 	--color-bg-secondary: hsl(220, 15%, 13%); /* Like bg-neutral-800 */
+	--color-bg-secondary-soft: hsl(220, 15%, 30%);
 	--color-text: hsl(0, 0%, 95%); /* Like text-white/90 */
 	--color-accent: hsl(330, 50%, 40%); /* Like bg-pink-800 */
 	--color-warning: hsl(40, 80%, 40%); /* Like bg-amber-500 */

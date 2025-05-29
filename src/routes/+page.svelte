@@ -13,6 +13,7 @@
 	import Definition from '$components/Definition.svelte';
 	import MyWords from '$components/MyWords.svelte';
 	import LetterSelector from '$components/LetterSelector.svelte';
+	import Buttons from '$components/Buttons.svelte';
 
 	let loading = $state(true);
 
@@ -30,6 +31,39 @@
 		})
 	);
 
+	// const game = {
+	// 	date: '',
+	// 	buttons: {
+	// 		// could be a custom store? or built into game hmm
+	// 		checkAnswer: {
+	// 			onclick: checkAnswer, // ?
+	// 			label: 'Check Answer',
+	// 			disabled // bool
+	// 		},
+	// 		// etc
+	// 		areAllDisabled // bool
+	// 	},
+	// 	letters: {
+	// 		// custom store of an array
+	// 		shuffle // func
+	// 	},
+	// 	word: {
+	// 		// custom store of an array
+	// 		asString, // reactive str
+	// 		write, // func
+	// 		clear, // func
+	// 		addLetter, // func
+	// 		removeLetter, // func
+	// 		isValid // reactive bool
+	// 	},
+	// 	notifications: {
+	// 		// not sure need a custom store for this. could be built into game store
+	// 		showIfValidWord, // bool
+	// 		wordChecked, // str
+	// 		showDictionaryWarning // bool
+	// 	}
+	// };
+
 	let showIfValidWord = $state(false);
 	let isTheWordValid = $state(null);
 	let wordChecked = $state(null);
@@ -41,6 +75,44 @@
 	let checkAnswerButtonDisabled = $derived(
 		$disableAllInputs || $wordAsString.length === 0 || wordTrie === null || showIfValidWord
 	);
+
+	const buttons = [
+		{
+			id: 'checkAnswer',
+			label: 'Check Answer',
+			onclick: checkAnswer,
+			disabled: () => checkAnswerButtonDisabled,
+			onmouseenter: () => {
+				showDictionaryWarning = true;
+			},
+			onmouseleave: () => {
+				showDictionaryWarning = false;
+			}
+		},
+		{
+			id: 'longestWord',
+			label: 'Show Longest Word',
+			onclick: handleFindLongestWord,
+			disabled: () => wordTrie === null || $disableAllInputs
+		},
+		{
+			id: 'randomWord',
+			label: 'Reveal Random Word',
+			onclick: revealRandomWord,
+			disabled: () => wordTrie === null || $disableAllInputs
+		},
+		{
+			id: 'shuffleLetters',
+			label: 'Shuffle',
+			onclick: shuffleLetters
+		},
+		{
+			id: 'clearWord',
+			label: 'Clear',
+
+			onclick: word.clear
+		}
+	];
 
 	function checkAnswer() {
 		if (!wordTrie) {
@@ -110,9 +182,7 @@
 		validWords = newWords;
 	}
 
-	function checkAnswerMouseEnter() {
-		showDictionaryWarning = true;
-	}
+	function checkAnswerMouseEnter() {}
 
 	function checkAnswerMouseLeave() {
 		showDictionaryWarning = false;
@@ -236,53 +306,8 @@
 		<!-- Letters -->
 		<LetterSelector {checkAnswerButton} />
 
-		<!-- Buttons -->
-		<div class="flex w-full flex-wrap justify-center gap-4 text-sm md:text-xl">
-			<button
-				bind:this={checkAnswerButton}
-				disabled={checkAnswerButtonDisabled}
-				class="bg-bg-secondary text-text border-text/30 rounded-lg border px-4 py-2 shadow-md dark:border-0 {checkAnswerButtonDisabled
-					? 'text-text/50'
-					: 'text-text/80 hover:text-text'}"
-				onmouseenter={checkAnswerMouseEnter}
-				onmouseleave={checkAnswerMouseLeave}
-				onclick={checkAnswer}>Check Answer</button
-			>
-
-			<button
-				disabled={wordTrie === null || $disableAllInputs}
-				onclick={handleFindLongestWord}
-				class="bg-bg-secondary rounded-lg px-4 py-2 {wordTrie
-					? 'text-text/80 hover:text-text'
-					: 'text-text/50'} border-text/30 border shadow-md dark:border-0">Show Longest Word</button
-			>
-
-			<button
-				disabled={wordTrie === null || $disableAllInputs}
-				onclick={revealRandomWord}
-				class="bg-bg-secondary rounded-lg px-4 py-2 {wordTrie
-					? 'text-text/80 hover:text-text'
-					: 'text-text/50'} border-text/30 border shadow-md dark:border-0"
-				>Reveal Random Word</button
-			>
-
-			<button
-				disabled={$disableAllInputs}
-				onclick={shuffleLetters}
-				class="bg-bg-secondary rounded-lg px-4 py-2 {disableAllInputs
-					? 'text-text/80 hover:text-text'
-					: 'text-text/50'} border-text/30 border shadow-md dark:border-0">Shuffle</button
-			>
-
-			<button
-				disabled={$disableAllInputs}
-				onclick={() => {
-					word.clear();
-				}}
-				class="bg-bg-secondary text-text/80 hover:text-text border-text/30 rounded-lg border px-4 py-2 shadow-md dark:border-0"
-				>Clear</button
-			>
-		</div>
+		<!-- Game Buttons -->
+		<Buttons {buttons} />
 
 		<!-- My words -->
 		{#if validWords.length && !loading}
