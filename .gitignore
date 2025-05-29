@@ -27,3 +27,4 @@ exampleWordnikRes*
 *todo*.md
 
 /src/routes/test*
+/src/lib/old.storage.js

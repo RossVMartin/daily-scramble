@@ -1,6 +1,6 @@
 <script>
 	import seedrandom from 'seedrandom';
-	import { word, wordAsString, letters, disableAllInputs } from '$src/lib/stores';
+	import { word, wordAsString, letters, disableAllInputs, validWords } from '$src/lib/stores';
 	import { getNowUTC } from '$lib/dateUtils.js';
 	import { getLetters, letterPoints } from '$lib/letters.js';
 	import { isValidWord, findLongestWord, findRandomWord } from '$lib/wordTrie.js';
@@ -67,7 +67,6 @@
 	let showIfValidWord = $state(false);
 	let isTheWordValid = $state(null);
 	let wordChecked = $state(null);
-	let validWords = $state([]);
 	let wordTrie = $state(null);
 	let showDictionaryWarning = $state(false);
 
@@ -126,10 +125,10 @@
 
 		if (isTheWordValid) {
 			selectDefinitionWord(wordChecked, true);
-			!validWords.includes(wordChecked) && validWords.push(wordChecked);
+			if (!$validWords.includes(wordChecked)) {
+				validWords.update((vw) => [...vw, wordChecked]);
+			}
 		}
-
-		updateStorage();
 
 		setTimeout(() => {
 			showIfValidWord = false;
@@ -138,55 +137,10 @@
 
 	onMount(async () => {
 		loading = false;
-		validWords = loadStorage();
-
 		// const res = await fetch('/wordTrieSowpods.json');
 		const res = await fetch('/wordTrieWordnik.json');
 		wordTrie = await res.json();
 	});
-
-	function loadStorage() {
-		const storageStr = localStorage.getItem('dailyScrambleWords');
-		const emptyStorage = { [utcDate]: [] };
-
-		try {
-			const parsedStorage = JSON.parse(storageStr);
-
-			if (!parsedStorage || typeof parsedStorage !== 'object') {
-				localStorage.setItem('dailyScrambleWords', JSON.stringify(emptyStorage));
-				validWords = [];
-				return [];
-			}
-
-			if (parsedStorage[utcDate] && Array.isArray(parsedStorage[utcDate])) {
-				return parsedStorage[utcDate];
-			} else {
-				parsedStorage[utcDate] = [];
-				localStorage.setItem('dailyScrambleWords', JSON.stringify(parsedStorage));
-				validWords = [];
-				return [];
-			}
-		} catch (err) {
-			localStorage.setItem('dailyScrambleWords', JSON.stringify(emptyStorage));
-			validWords = [];
-			return [];
-		}
-	}
-
-	function updateStorage() {
-		const existingWords = loadStorage();
-		const newWords = Array.from(new Set([...existingWords, ...validWords]));
-		const parsedStorage = JSON.parse(localStorage.getItem('dailyScrambleWords'));
-		parsedStorage[utcDate] = newWords;
-		localStorage.setItem('dailyScrambleWords', JSON.stringify(parsedStorage));
-		validWords = newWords;
-	}
-
-	function checkAnswerMouseEnter() {}
-
-	function checkAnswerMouseLeave() {
-		showDictionaryWarning = false;
-	}
 
 	function handleFindLongestWord() {
 		const longestWord = findLongestWord(
@@ -202,7 +156,7 @@
 		const foundWord = findRandomWord(
 			letterSet,
 			wordTrie,
-			validWords, // Pass found words
+			$validWords, // Pass found words
 			4, // minLength
 			9, // maxLength (won't reveal 10+ letter words)
 			0.7, // lengthPreference
@@ -219,7 +173,7 @@
 		const words = findRandomWord(
 			letterSet,
 			wordTrie,
-			validWords,
+			$validWords,
 			4,
 			0.7,
 			true, // returnMultiple
@@ -310,8 +264,8 @@
 		<Buttons {buttons} />
 
 		<!-- My words -->
-		{#if validWords.length && !loading}
-			<MyWords {validWords} />
+		{#if $validWords.length && !loading}
+			<MyWords {$validWords} />
 		{/if}
 
 		<!-- My stats -->

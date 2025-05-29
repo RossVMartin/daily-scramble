@@ -1,9 +1,7 @@
 <script>
-	let { validWords = [] } = $props();
-
 	import { fade } from 'svelte/transition';
 	import { letterPoints } from '$lib/letters.js';
-	import { definitionWord } from '$lib/stores.js';
+	import { definitionWord, validWords } from '$lib/stores.js';
 	import { selectDefinitionWord } from '$lib/definitions.js';
 
 	function tallyScrabblePoints(charArray) {
@@ -13,7 +11,7 @@
 		}, 0);
 	}
 
-	let sortedValidWords = $derived([...validWords].sort((a, b) => b.length - a.length));
+	let sortedValidWords = $derived([...$validWords].sort((a, b) => b.length - a.length));
 </script>
 
 <div
