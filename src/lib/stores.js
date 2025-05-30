@@ -4,6 +4,9 @@ import { getNowUTC } from '$lib/dateUtils.js';
 
 export const darkMode = localStorageStore('darkMode', null);
 export const statsEnabled = localStorageStore('statsEnabled', true);
+
+export const debugEnabled = localStorageStore('dailyScrambleDebug', false);
+
 export const definitionWord = writable(null);
 export const definitions = writable({});
 

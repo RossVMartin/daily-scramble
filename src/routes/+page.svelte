@@ -6,7 +6,8 @@
 		letters,
 		disableAllInputs,
 		validWords,
-		statsEnabled
+		statsEnabled,
+		debugEnabled
 	} from '$src/lib/stores';
 	import { getNowUTC } from '$lib/dateUtils.js';
 	import { getLetters, letterPoints } from '$lib/letters.js';
@@ -139,6 +140,27 @@
 			onclick: word.clear
 		}
 	];
+
+	const debugButtons = [
+		{
+			id: 'add',
+			label: 'Add',
+			onclick: () => {
+				validWords.update((vw) => [...vw, 'Test' + Math.random().toString().slice(2, 6)]);
+			},
+			disabled: false
+		},
+		{
+			id: 'remove',
+			label: 'Remove',
+			onclick: () => {
+				validWords.update((vw) => vw.slice(1));
+			},
+			disabled: false
+		}
+	];
+
+	$debugEnabled && buttons.push(...debugButtons);
 
 	function checkAnswer() {
 		if (!wordTrie) {
