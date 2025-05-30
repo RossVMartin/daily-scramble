@@ -11,7 +11,7 @@
 	import { getNowUTC } from '$lib/dateUtils.js';
 	import { getLetters, letterPoints } from '$lib/letters.js';
 	import { isValidWord, findLongestWord, findRandomWord } from '$lib/wordTrie.js';
-	import { shuffleArraySeeded, sleep } from '$lib/utils.js';
+	import { debounce, shuffleArraySeeded, sleep } from '$lib/utils.js';
 	import { slide, fly, fade, blur } from 'svelte/transition';
 	import { onMount, tick } from 'svelte';
 	import { selectDefinitionWord } from '$lib/definitions.js';
@@ -83,6 +83,26 @@
 		$disableAllInputs || $wordAsString.length === 0 || wordTrie === null || showIfValidWord
 	);
 
+	let screenWidth = $state(0);
+
+	const calculateWordComponentsCount = (validWords, screenWidth) => {
+		const wordCount = validWords.length;
+		if (!wordCount || screenWidth < 1024 || wordCount < 11) {
+			return 1;
+		}
+
+		if (wordCount > 29 && screenWidth >= 1536) {
+			return 3;
+		}
+
+		if (wordCount > 19 && screenWidth >= 1024) {
+			return 2;
+		}
+
+		return 1;
+	};
+
+	let wordComponentsCount = $derived(calculateWordComponentsCount($validWords, screenWidth));
 	const buttons = [
 		{
 			id: 'checkAnswer',
@@ -143,10 +163,23 @@
 	}
 
 	onMount(async () => {
+		screenWidth = window.innerWidth;
 		loading = false;
+		const handleResize = () => {
+			screenWidth = window.innerWidth;
+		};
+
+		const handleResizeDebounced = debounce(handleResize, 75);
+
+		window.addEventListener('resize', handleResizeDebounced);
+
 		// const res = await fetch('/wordTrieSowpods.json');
 		const res = await fetch('/wordTrieWordnik.json');
 		wordTrie = await res.json();
+
+		return () => {
+			window.removeEventListener('resize', handleResizeDebounced);
+		};
 	});
 
 	function handleFindLongestWord() {
@@ -272,7 +305,11 @@
 
 		<!-- My words -->
 		{#if $validWords.length && !loading}
-			<MyWords />
+			<div class="flex w-full items-start justify-center gap-4">
+				{#each Array.from({ length: wordComponentsCount }) as item, index}
+					<MyWords componentIndex={index} maxComponents={wordComponentsCount} />
+				{/each}
+			</div>
 		{/if}
 
 		{#if $validWords.length && !loading && $statsEnabled}
