@@ -1,6 +1,13 @@
 <script>
 	import seedrandom from 'seedrandom';
-	import { word, wordAsString, letters, disableAllInputs, validWords } from '$src/lib/stores';
+	import {
+		word,
+		wordAsString,
+		letters,
+		disableAllInputs,
+		validWords,
+		statsEnabled
+	} from '$src/lib/stores';
 	import { getNowUTC } from '$lib/dateUtils.js';
 	import { getLetters, letterPoints } from '$lib/letters.js';
 	import { isValidWord, findLongestWord, findRandomWord } from '$lib/wordTrie.js';
@@ -14,6 +21,7 @@
 	import MyWords from '$components/MyWords.svelte';
 	import LetterSelector from '$components/LetterSelector.svelte';
 	import Buttons from '$components/Buttons.svelte';
+	import MyStats from '$components/MyStats.svelte';
 
 	let loading = $state(true);
 
@@ -108,7 +116,6 @@
 		{
 			id: 'clearWord',
 			label: 'Clear',
-
 			onclick: word.clear
 		}
 	];
@@ -265,10 +272,13 @@
 
 		<!-- My words -->
 		{#if $validWords.length && !loading}
-			<MyWords {$validWords} />
+			<MyWords />
 		{/if}
 
-		<!-- My stats -->
+		{#if $validWords.length && !loading && $statsEnabled}
+			<!-- My stats -->
+			<MyStats />
+		{/if}
 
 		<!-- Footer e.g flex-grow and made by Ross etc -->
 		<div class="text-text/80 flex flex-grow items-end justify-end text-center text-xs md:text-sm">

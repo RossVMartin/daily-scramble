@@ -1,15 +1,8 @@
 <script>
 	import { fade } from 'svelte/transition';
-	import { letterPoints } from '$lib/letters.js';
+	import { tallyScrabblePoints } from '$lib/utils.js';
 	import { definitionWord, validWords } from '$lib/stores.js';
 	import { selectDefinitionWord } from '$lib/definitions.js';
-
-	function tallyScrabblePoints(charArray) {
-		return charArray.reduce((acc, letter) => {
-			const points = letterPoints[letter.toUpperCase()];
-			return acc + points;
-		}, 0);
-	}
 
 	let sortedValidWords = $derived([...$validWords].sort((a, b) => b.length - a.length));
 </script>
@@ -18,7 +11,9 @@
 	in:fade={{ duration: 350 }}
 	class="dark:border-text/10 border-text/30 bg-bg-secondary flex flex-col items-center justify-center gap-2 rounded-lg border p-4 shadow-lg md:p-6 md:text-lg"
 >
-	<div class="text-text/80 grid grid-cols-3 text-center">
+	<div
+		class="text-text/80 dark:dark-scrollbar grid max-h-[800px] grid-cols-3 overflow-y-auto text-center"
+	>
 		<span class="text-text/90 p-3 font-bold">Word</span>
 		<span class="text-text/90 p-3 font-bold">Length</span>
 		<span class="text-text/90 p-3 font-bold">Scrabble Points</span>

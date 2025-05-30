@@ -3,6 +3,7 @@ import { createWordStore, localStorageStore, derivedWritable } from './customSto
 import { getNowUTC } from '$lib/dateUtils.js';
 
 export const darkMode = localStorageStore('darkMode', null);
+export const statsEnabled = localStorageStore('statsEnabled', true);
 export const definitionWord = writable(null);
 export const definitions = writable({});
 

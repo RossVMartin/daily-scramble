@@ -1,3 +1,5 @@
+import { letterPoints } from './letters.js';
+
 export function shuffleArraySeeded(array, rng = Math.random) {
 	// Fisher-Yates shuffle algorithm
 	for (let i = array.length - 1; i > 0; i--) {
@@ -12,4 +14,11 @@ export async function sleep(ms) {
 	return new Promise((resolve) => {
 		setTimeout(resolve, ms);
 	});
+}
+
+export function tallyScrabblePoints(charArray) {
+	return charArray.reduce((acc, letter) => {
+		const points = letterPoints[letter.toUpperCase()];
+		return acc + points;
+	}, 0);
 }
