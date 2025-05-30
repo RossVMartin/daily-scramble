@@ -1,5 +1,5 @@
 <script>
-	import { darkMode, statsEnabled, allValidWords } from '$lib/stores.js';
+	import { darkMode, statsEnabled, validWords } from '$lib/stores.js';
 	import DarkMode from '$icons/DarkMode.svelte';
 	import LightMode from '$icons/LightMode.svelte';
 	import Leaderboard from '$icons/Leaderboard.svelte';
@@ -21,7 +21,7 @@
 
 <!-- Theme switcher mobile -->
 <div class="mb-[-16px] flex w-full justify-end gap-2 md:hidden">
-	{#if Object.keys($allValidWords).length}
+	{#if $validWords.length}
 		<button
 			title="Toggle stats"
 			onclick={handleToggleStats}
@@ -47,7 +47,7 @@
 
 <!-- Theme switcher md -->
 <div class="absolute top-2 right-2 flex gap-2">
-	{#if Object.keys($allValidWords).length}
+	{#if $validWords.length}
 		<button
 			title="Toggle stats"
 			onclick={handleToggleStats}
