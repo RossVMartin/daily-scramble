@@ -92,11 +92,11 @@
 			return 1;
 		}
 
-		if (wordCount > 29 && screenWidth >= 1536) {
+		if (wordCount > 29 && screenWidth >= 1800) {
 			return 3;
 		}
 
-		if (wordCount > 19 && screenWidth >= 1024) {
+		if (wordCount > 19 && screenWidth >= 1200) {
 			return 2;
 		}
 
