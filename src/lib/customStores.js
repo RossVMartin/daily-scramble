@@ -45,11 +45,11 @@ export function createWordStore() {
 			for (const char of wordToWrite) {
 				for (let i = 0; i < $letters.length; i++) {
 					if ($letters[i].letter === char && !$letters[i].used) {
-						letters.update((l) => {
-							l[i].used = true;
-							return l;
+						letters.update(($letters) => {
+							$letters[i].used = true;
+							return $letters;
 						});
-						newWord.push({ letter: char, index: i });
+						newWord.push({ letter: char, id: $letters[i].id });
 						set(newWord);
 						await sleep(Math.round(Math.random() * 100) + 100);
 						break;
@@ -61,32 +61,32 @@ export function createWordStore() {
 
 		clear() {
 			set([]);
-			letters.update((l) => {
-				l.forEach((letter) => (letter.used = false));
-				return l;
+			letters.update(($letters) => {
+				$letters.forEach((letter) => (letter.used = false));
+				return $letters;
 			});
 		},
 
 		addLetter(poolIndex) {
 			const $letters = get(letters);
-			const letterObj = $letters[poolIndex];
-
-			update((w) => [...w, { letter: letterObj.letter, index: poolIndex }]);
-			letters.update((l) => {
-				l[poolIndex].used = true;
-				return l;
+			const { letter, id } = $letters[poolIndex];
+			update(($word) => [...$word, { letter, id }]);
+			letters.update(($letters) => {
+				$letters[poolIndex].used = true;
+				return $letters;
 			});
 		},
 
 		removeLetter(wordIndex) {
-			update((w) => {
-				const letterPoolIndex = w[wordIndex].index;
-				letters.update((l) => {
-					l[letterPoolIndex].used = false;
-					return l;
+			update(($word) => {
+				const $letters = get(letters);
+				const letterPoolIndex = $letters.findIndex((l) => l.id === $word[wordIndex].id);
+				letters.update(($letters) => {
+					$letters[letterPoolIndex].used = false;
+					return $letters;
 				});
-				w.splice(wordIndex, 1);
-				return w;
+				$word.splice(wordIndex, 1);
+				return $word;
 			});
 		}
 	};
