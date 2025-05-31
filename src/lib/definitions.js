@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { definitions, definitionWord } from './stores';
+import { definitions, definitionWord, fetchingDefinition } from './stores';
 
 export async function fetchDefinition(word) {
 	const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
@@ -45,6 +45,7 @@ export async function selectDefinitionWord(word, forceEnable = false) {
 	}
 
 	try {
+		fetchingDefinition.set(true);
 		const data = await fetchDefinition(word);
 		const definition = processDefinitionData(data);
 
@@ -52,11 +53,13 @@ export async function selectDefinitionWord(word, forceEnable = false) {
 			return { ...$definitions, [word]: definition };
 		});
 	} catch (err) {
+		fetchingDefinition.set(false);
 		console.log(`Error fetching definition for '${word}'`, err);
 		definitions.update(($definitions) => {
 			return { ...$definitions, [word]: null };
 		});
 	}
 
+	fetchingDefinition.set(false);
 	definitionWord.set(word);
 }

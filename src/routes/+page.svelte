@@ -7,7 +7,9 @@
 		disableAllInputs,
 		validWords,
 		statsEnabled,
-		debugEnabled
+		debugEnabled,
+		notifications,
+		fetchingDefinition
 	} from '$src/lib/stores';
 	import { getNowUTC } from '$lib/dateUtils.js';
 	import { getLetters, letterPoints } from '$lib/letters.js';
@@ -23,6 +25,7 @@
 	import LetterSelector from '$components/LetterSelector.svelte';
 	import Buttons from '$components/Buttons.svelte';
 	import MyStats from '$components/MyStats.svelte';
+	import Notifications from '$components/Notifications.svelte';
 
 	let loading = $state(true);
 
@@ -73,15 +76,12 @@
 	// 	}
 	// };
 
-	let showIfValidWord = $state(false);
-	let isTheWordValid = $state(null);
-	let wordChecked = $state(null);
 	let wordTrie = $state(null);
 	let showDictionaryWarning = $state(false);
 
 	let checkAnswerButton = $state(null);
 	let checkAnswerButtonDisabled = $derived(
-		$disableAllInputs || $wordAsString.length === 0 || wordTrie === null || showIfValidWord
+		$disableAllInputs || $wordAsString.length === 0 || wordTrie === null || $fetchingDefinition
 	);
 
 	let screenWidth = $state(0);
@@ -167,10 +167,13 @@
 			console.log('Wordtrie is not initialised yet');
 			return;
 		}
-		isTheWordValid = isValidWord($wordAsString, wordTrie);
+		const isTheWordValid = isValidWord($wordAsString, wordTrie);
+		const wordChecked = $wordAsString[0] + $wordAsString.slice(1).toLowerCase();
+		const message = isTheWordValid
+			? `'${wordChecked}' is a valid word!`
+			: `'${wordChecked}' is not a valid word.`;
 
-		showIfValidWord = true;
-		wordChecked = $wordAsString[0] + $wordAsString.slice(1).toLowerCase();
+		notifications.add(message, isTheWordValid ? 'validWord' : 'invalidWord');
 
 		if (isTheWordValid) {
 			selectDefinitionWord(wordChecked, true);
@@ -178,10 +181,6 @@
 				validWords.update((vw) => [...vw, wordChecked]);
 			}
 		}
-
-		setTimeout(() => {
-			showIfValidWord = false;
-		}, 3000);
 	}
 
 	onMount(async () => {
@@ -191,7 +190,7 @@
 			screenWidth = window.innerWidth;
 		};
 
-		const handleResizeDebounced = debounce(handleResize, 75);
+		const handleResizeDebounced = debounce(handleResize, 50);
 
 		window.addEventListener('resize', handleResizeDebounced);
 
@@ -269,23 +268,7 @@
 		</div>
 	{/if}
 
-	{#if showIfValidWord}
-		<div
-			class="text-text/90 fixed top-5 right-2 z-50 shadow-md md:top-8 md:right-5"
-			in:fade={{ duration: 500 }}
-			out:fade={{ duration: 500 }}
-		>
-			{#if isTheWordValid}
-				<span class="bg-success/90 text-text relative rounded-lg p-3 text-lg md:p-4 md:text-2xl"
-					>'{wordChecked}' is a valid word!</span
-				>
-			{:else}
-				<span class="bg-error/90 text-text relative rounded-lg p-3 text-lg md:p-4 md:text-2xl"
-					>'{wordChecked}' is not a valid word.</span
-				>
-			{/if}
-		</div>
-	{/if}
+	<Notifications />
 
 	<div
 		in:fade={{ duration: 100 }}
@@ -327,7 +310,7 @@
 
 		<!-- My words -->
 		{#if $validWords.length && !loading}
-			<div class="flex w-full items-start justify-center gap-4">
+			<div class="flex w-full items-start justify-center gap-4" in:fade={{ duration: 300 }}>
 				{#each Array.from({ length: wordComponentsCount }) as item, index}
 					<MyWords componentIndex={index} maxComponents={wordComponentsCount} />
 				{/each}

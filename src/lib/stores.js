@@ -1,5 +1,10 @@
 import { derived, writable } from 'svelte/store';
-import { createWordStore, localStorageStore, derivedWritable } from './customStores.js';
+import {
+	createWordStore,
+	localStorageStore,
+	derivedWritable,
+	createNotificationsStore
+} from './customStores.js';
 import { getNowUTC } from '$lib/dateUtils.js';
 
 export const darkMode = localStorageStore('darkMode', null);
@@ -9,6 +14,9 @@ export const debugEnabled = localStorageStore('dailyScrambleDebug', false);
 
 export const definitionWord = writable(null);
 export const definitions = writable({});
+export const fetchingDefinition = writable(false);
+
+export const notifications = createNotificationsStore(3000);
 
 export const definition = derived(
 	[definitionWord, definitions],

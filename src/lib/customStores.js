@@ -92,6 +92,75 @@ export function createWordStore() {
 	};
 }
 
+export function createNotificationsStoreSequential(defaultMs = 3000) {
+	const { subscribe, set, update } = writable([]);
+
+	let processingNotifications = false;
+
+	const processNotifications = () => {
+		processingNotifications = true;
+		update(($notifications) => {
+			const remaining = $notifications.slice(1);
+
+			if (remaining.length === 0) {
+				processingNotifications = false;
+				return remaining;
+			}
+
+			setTimeout(processNotifications, remaining[0].ms);
+
+			return remaining;
+		});
+	};
+
+	return {
+		subscribe,
+
+		add(message, type, ms = defaultMs) {
+			update(($notifications) => [...$notifications, { message, type, ms }]);
+
+			if (!processingNotifications) {
+				processingNotifications = true;
+				setTimeout(processNotifications, ms);
+			}
+		},
+
+		clear() {
+			set([]);
+			processingNotifications = false;
+		}
+	};
+}
+
+export function createNotificationsStore(defaultMs = 3000) {
+	const { subscribe, set, update } = writable([]);
+
+	return {
+		subscribe,
+
+		add(message, type, ms = defaultMs) {
+			let id = Math.random().toString().slice(2, 12);
+
+			update(($notifications) => {
+				while ($notifications.findIndex((n) => n.id === id) >= 0) {
+					id = Math.random().toString().slice(2, 12);
+				}
+				return [...$notifications, { message, type, id }];
+			});
+
+			setTimeout(() => {
+				update(($notifications) => $notifications.filter((n) => n.id !== id));
+			}, ms);
+
+			return id;
+		},
+
+		clear() {
+			set([]);
+		}
+	};
+}
+
 export function derivedWritable(parentStore, key, initialValue = []) {
 	const { subscribe } = derived(
 		parentStore,
